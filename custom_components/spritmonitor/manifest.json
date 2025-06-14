@@ -8,6 +8,5 @@
   "issue_tracker": "https://github.com/matbott/home_assistant_Spritmonitor/issues",
   "requirements": [],
   "dependencies": [],
-  "iot_class": "cloud_polling",
-  "icon": "1749938437182.svg"
+  "iot_class": "cloud_polling"
 }
