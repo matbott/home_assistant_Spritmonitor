@@ -271,11 +271,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             icon="mdi:note-text"
         ),
         SpritmonitorSensor(
-            coordinator,  # Nuevo sensor para la fecha
+            coordinator,
             "next_service_date",
             "Próximo servicio - fecha",
             lambda d: get_next_service_date_reminder(d.get('reminders', [])),
-            device_class=SensorDeviceClass.DATE,  # Clase de dispositivo para fechas
+            device_class=SensorDeviceClass.DATE,
             icon="mdi:calendar-clock"
         ),
         SpritmonitorSensor(
@@ -357,4 +357,45 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, sensor_id, name, value_fn, unit=None, device_class=None, state_class=None, icon=None):
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._sensor_id
+        self._sensor_id = sensor_id # <-- Esta línea es vital
+        self._name = name
+        self._value_fn = value_fn
+        self._attr_native_unit_of_measurement = unit
+        self._attr_device_class = device_class
+        self._attr_state_class = state_class
+        self._attr_icon = icon
+
+        # Generar unique_id estable
+        vehicle_id = coordinator.data.get('vehicle', {}).get('id', 'unknown') if coordinator.data else 'unknown'
+        self._attr_unique_id = f"spritmonitor_{vehicle_id}_{sensor_id}"
+        self._attr_name = f"Spritmonitor {name}"
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device information about this sensor."""
+        if not self.coordinator.data or not self.coordinator.data.get('vehicle'):
+            return None
+
+        vehicle = self.coordinator.data['vehicle']
+        return DeviceInfo(
+            identifiers={(DOMAIN, str(vehicle.get('id', 'unknown')))},
+            name=f"{vehicle.get('make', '')} {vehicle.get('model', '')}".strip() or "Vehículo Spritmonitor",
+            manufacturer=vehicle.get('make', 'Unknown'),
+            model=vehicle.get('model', 'Unknown'),
+            via_device=None,
+        )
+
+    @property
+    def native_value(self):
+        """Return the native value of the sensor."""
+        try:
+            if not self.coordinator.data:
+                return None
+            return self._value_fn(self.coordinator.data)
+        except (KeyError, TypeError, AttributeError, ValueError):
+            return None
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success and self.coordinator.data is not None
