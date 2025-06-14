@@ -1,0 +1,9 @@
+{
+  "domain": "spritmonitor",
+  "name": "Spritmonitor Sensor",
+  "version": "0.1",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [],
+  "config_flow": true
+}
