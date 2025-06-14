@@ -44,38 +44,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if not vehicle_info:
                     raise UpdateFailed(f"Vehículo con ID {vehicle_id} no encontrado")
 
-            # Obtener últimos 5 repostajes
+            # Obtener último repostaje
             async with session.get(
-                f"https://api.spritmonitor.de/v1/vehicle/{vehicle_id}/fuelings.json?limit=5", 
+                f"https://api.spritmonitor.de/v1/vehicle/{vehicle_id}/fuelings.json?limit=1", 
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=30)
             ) as response:
                 response.raise_for_status()
                 refuelings = await response.json()
                 last_refueling = refuelings[0] if refuelings else None
-                previous_refueling = refuelings[1] if len(refuelings) > 1 else None
-
-            # Obtener recordatorios/mantenimientos
-            reminders = None
-            try:
-                async with session.get(
-                    "https://api.spritmonitor.de/v1/reminders.json", 
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=30)
-                ) as response:
-                    if response.status == 200:
-                        all_reminders = await response.json()
-                        # Filtrar solo los recordatorios de este vehículo
-                        reminders = [r for r in all_reminders if r.get('vehicle') == vehicle_id]
-            except Exception as e:
-                _LOGGER.debug("No se pudieron obtener recordatorios: %s", e)
 
             return {
                 "vehicle": vehicle_info,
-                "last_refueling": last_refueling,
-                "previous_refueling": previous_refueling,
-                "refuelings": refuelings,  # Lista completa de repostajes
-                "reminders": reminders,
+                "last_refueling": last_refueling
             }
         except aiohttp.ClientError as e:
             raise UpdateFailed(f"Error de conexión con Spritmonitor: {e}")
@@ -106,4 +87,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
 
-    return unload_ok
+    return unload_ok#         
