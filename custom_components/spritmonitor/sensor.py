@@ -69,6 +69,197 @@ def get_next_service_date_reminder(reminders):
     next_reminder = min(reminders_with_dates, key=lambda x: x['parsed_date'])
     return next_reminder.get('parsed_date') # Devolver la fecha convertida
 
+def calculate_consumption_trend(refuelings):
+    """Calcular tendencia de consumo en los últimos repostajes."""
+    if not refuelings or len(refuelings) < 3:
+        return None
+    
+    # Obtener consumos de los últimos 3 repostajes (saltamos el primero si no tiene consumo calculado)
+    consumptions = []
+    for refueling in refuelings[:5]:
+        consumption = refueling.get('consumption')
+        if consumption and float(consumption) > 0:
+            consumptions.append(float(consumption))
+    
+    if len(consumptions) < 3:
+        return None
+    
+    # Comparar los 2 más recientes vs los 2 anteriores
+    recent_avg = sum(consumptions[:2]) / 2
+    older_avg = sum(consumptions[2:4]) / 2 if len(consumptions) >= 4 else consumptions[2]
+    
+    difference = recent_avg - older_avg
+    
+    if difference > 0.5:  # Mejora significativa (más km/L)
+        return "Mejorando"
+    elif difference < -0.5:  # Empeoramiento significativo
+        return "Empeorando"
+    else:
+        return "Estable"
+
+def calculate_consumption_consistency(refuelings):
+    """Calcular consistencia del consumo (desviación estándar)."""
+    if not refuelings or len(refuelings) < 3:
+        return None
+    
+    consumptions = []
+    for refueling in refuelings[:5]:
+        consumption = refueling.get('consumption')
+        if consumption and float(consumption) > 0:
+            consumptions.append(float(consumption))
+    
+    if len(consumptions) < 3:
+        return None
+    
+    # Calcular desviación estándar
+    mean = sum(consumptions) / len(consumptions)
+    variance = sum((x - mean) ** 2 for x in consumptions) / len(consumptions)
+    std_dev = variance ** 0.5
+    
+    return round(std_dev, 2)
+
+def calculate_avg_refuel_quantity(refuelings):
+    """Calcular promedio de litros por repostaje."""
+    if not refuelings:
+        return None
+    
+    quantities = []
+    for refueling in refuelings[:5]:
+        quantity = refueling.get('quantity')
+        if quantity and float(quantity) > 0:
+            quantities.append(float(quantity))
+    
+    if not quantities:
+        return None
+    
+    return round(sum(quantities) / len(quantities), 1)
+
+def calculate_avg_days_between_refuels(refuelings):
+    """Calcular días promedio entre repostajes."""
+    if not refuelings or len(refuelings) < 2:
+        return None
+    
+    dates = []
+    for refueling in refuelings[:5]:
+        date_str = refueling.get('date')
+        if date_str:
+            try:
+                # Asumiendo formato DD.MM.YYYY
+                date_obj = datetime.strptime(date_str, '%d.%m.%Y')
+                dates.append(date_obj)
+            except ValueError:
+                continue
+    
+    if len(dates) < 2:
+        return None
+    
+    # Calcular diferencias entre fechas consecutivas
+    days_differences = []
+    for i in range(len(dates) - 1):
+        diff = (dates[i] - dates[i + 1]).days
+        if diff > 0:  # Solo diferencias positivas
+            days_differences.append(diff)
+    
+    if not days_differences:
+        return None
+    
+    return round(sum(days_differences) / len(days_differences), 1)
+
+def calculate_price_variability(refuelings):
+    """Calcular variabilidad de precios por litro."""
+    if not refuelings:
+        return None
+    
+    prices_per_liter = []
+    for refueling in refuelings[:5]:
+        cost = refueling.get('cost')
+        quantity = refueling.get('quantity')
+        if cost and quantity and float(quantity) > 0:
+            price_per_liter = float(cost) / float(quantity)
+            prices_per_liter.append(price_per_liter)
+    
+    if len(prices_per_liter) < 2:
+        return None
+    
+    return round(max(prices_per_liter) - min(prices_per_liter), 2)
+
+def calculate_eco_driving_index(refuelings, vehicle_avg_consumption):
+    """Calcular índice de conducción ecológica (1-10)."""
+    if not refuelings or not vehicle_avg_consumption:
+        return None
+    
+    # Obtener consumos recientes
+    recent_consumptions = []
+    for refueling in refuelings[:3]:  # Últimos 3 repostajes
+        consumption = refueling.get('consumption')
+        if consumption and float(consumption) > 0:
+            recent_consumptions.append(float(consumption))
+    
+    if not recent_consumptions:
+        return None
+    
+    recent_avg = sum(recent_consumptions) / len(recent_consumptions)
+    vehicle_avg = float(vehicle_avg_consumption)
+    
+    # Calcular consistencia (menos variabilidad = mejor)
+    if len(recent_consumptions) > 1:
+        consistency = calculate_consumption_consistency(refuelings) or 0
+        consistency_score = max(0, 10 - consistency * 2)  # Penalizar inconsistencia
+    else:
+        consistency_score = 5
+    
+    # Comparar con promedio histórico
+    if recent_avg > vehicle_avg * 1.1:  # 10% mejor que promedio
+        performance_score = 10
+    elif recent_avg > vehicle_avg:
+        performance_score = 8
+    elif recent_avg > vehicle_avg * 0.9:  # Hasta 10% peor
+        performance_score = 6
+    else:
+        performance_score = 3
+    
+    # Promedio ponderado (60% rendimiento, 40% consistencia)
+    eco_index = (performance_score * 0.6 + consistency_score * 0.4)
+    
+    return round(eco_index, 1)
+
+def calculate_km_to_service(data):
+    """Calcular kilómetros restantes para el próximo servicio."""
+    if not data.get('last_refueling') or not data.get('reminders'):
+        return None
+
+    next_service = get_next_service_reminder(data.get('reminders', []))
+    if not next_service:
+        return None
+
+    current_km = float(data['last_refueling'].get('odometer', 0))
+    service_km = next_service.get('next_odometer', 0)
+
+    return max(0, service_km - current_km)
+
+def calculate_fuel_level_estimate(data):
+    """Estimar nivel de combustible basado en consumo y distancia."""
+    if not data.get('vehicle') or not data.get('last_refueling'):
+        return None
+
+    capacity = float(data['vehicle'].get('capacity', 35))  # Valor por defecto
+    last_refuel_quantity = float(data['last_refueling'].get('quantity', 0))
+    consumption_rate = float(data['vehicle'].get('consumption', 14))  # km/L
+
+    # Asumimos que el tanque se llenó en el último repostaje
+    # y estimamos cuánto se ha consumido desde entonces
+    # Nota: esto es una estimación básica, necesitaríamos más datos para ser preciso
+    return min(capacity, last_refuel_quantity)
+
+def calculate_range_estimate(data):
+    """Estimar autonomía restante."""
+    fuel_level = calculate_fuel_level_estimate(data)
+    if not fuel_level or not data.get('vehicle'):
+        return None
+
+    consumption_rate = float(data['vehicle'].get('consumption', 14))  # km/L
+    return round(fuel_level * consumption_rate, 0)
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Spritmonitor sensors based on a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
@@ -310,46 +501,67 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             state_class=SensorStateClass.MEASUREMENT,
             icon="mdi:gas-station-off"
         ),
+
+        # === ANÁLISIS DE TENDENCIAS (basado en últimos 5 repostajes) ===
+        SpritmonitorSensor(
+            coordinator,
+            "consumption_trend",
+            "Tendencia de consumo",
+            lambda d: calculate_consumption_trend(d.get('refuelings', [])),
+            icon="mdi:trending-up"
+        ),
+        SpritmonitorSensor(
+            coordinator,
+            "consumption_consistency",
+            "Consistencia de consumo",
+            lambda d: calculate_consumption_consistency(d.get('refuelings', [])),
+            unit="km/L",
+            state_class=SensorStateClass.MEASUREMENT,
+            icon="mdi:chart-bell-curve"
+        ),
+        SpritmonitorSensor(
+            coordinator,
+            "avg_refuel_quantity",
+            "Promedio litros por carga",
+            lambda d: calculate_avg_refuel_quantity(d.get('refuelings', [])),
+            unit=UnitOfVolume.LITERS,
+            device_class=SensorDeviceClass.VOLUME,
+            state_class=SensorStateClass.MEASUREMENT,
+            icon="mdi:gas-station-outline"
+        ),
+        SpritmonitorSensor(
+            coordinator,
+            "avg_days_between_refuels",
+            "Días promedio entre cargas",
+            lambda d: calculate_avg_days_between_refuels(d.get('refuelings', [])),
+            unit="días",
+            state_class=SensorStateClass.MEASUREMENT,
+            icon="mdi:calendar-range"
+        ),
+        SpritmonitorSensor(
+            coordinator,
+            "price_variability",
+            "Variabilidad de precios",
+            lambda d: calculate_price_variability(d.get('refuelings', [])),
+            unit="UYU/L",
+            state_class=SensorStateClass.MEASUREMENT,
+            icon="mdi:chart-line-variant"
+        ),
+        SpritmonitorSensor(
+            coordinator,
+            "eco_driving_index",
+            "Índice de conducción eco",
+            lambda d: calculate_eco_driving_index(
+                d.get('refuelings', []), 
+                d.get('vehicle', {}).get('consumption')
+            ),
+            unit="/10",
+            state_class=SensorStateClass.MEASUREMENT,
+            icon="mdi:leaf"
+        ),
     ]
 
     async_add_entities(sensors)
-
-def calculate_km_to_service(data):
-    """Calcular kilómetros restantes para el próximo servicio."""
-    if not data.get('last_refueling') or not data.get('reminders'):
-        return None
-
-    next_service = get_next_service_reminder(data.get('reminders', []))
-    if not next_service:
-        return None
-
-    current_km = float(data['last_refueling'].get('odometer', 0))
-    service_km = next_service.get('next_odometer', 0)
-
-    return max(0, service_km - current_km)
-
-def calculate_fuel_level_estimate(data):
-    """Estimar nivel de combustible basado en consumo y distancia."""
-    if not data.get('vehicle') or not data.get('last_refueling'):
-        return None
-
-    capacity = float(data['vehicle'].get('capacity', 35))  # Valor por defecto
-    last_refuel_quantity = float(data['last_refueling'].get('quantity', 0))
-    consumption_rate = float(data['vehicle'].get('consumption', 14))  # km/L
-
-    # Asumimos que el tanque se llenó en el último repostaje
-    # y estimamos cuánto se ha consumido desde entonces
-    # Nota: esto es una estimación básica, necesitaríamos más datos para ser preciso
-    return min(capacity, last_refuel_quantity)
-
-def calculate_range_estimate(data):
-    """Estimar autonomía restante."""
-    fuel_level = calculate_fuel_level_estimate(data)
-    if not fuel_level or not data.get('vehicle'):
-        return None
-
-    consumption_rate = float(data['vehicle'].get('consumption', 14))  # km/L
-    return round(fuel_level * consumption_rate, 0)
 
 class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Spritmonitor sensor."""
