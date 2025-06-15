@@ -6,14 +6,14 @@ from datetime import datetime
 from . import DOMAIN
 
 def calculate_price_per_liter(cost, quantity):
-    """Calcular precio por litro."""
+    """Calculate price per liter."""
     if not cost or not quantity or quantity == 0:
         return None
-    # Si el costo ya viene en la unidad monetaria base (Pesos), simplemente se divide.
+    # If cost comes in base monetary unit (Pesos), simply divide.
     return round(float(cost) / float(quantity), 3)
 
 def calculate_distance_between_refuels(refuelings):
-    """Calcular distancia entre últimos dos repostajes."""
+    """Calculate distance between last two refuelings."""
     if not refuelings or len(refuelings) < 2:
         return None
     last = refuelings[0]
@@ -21,13 +21,13 @@ def calculate_distance_between_refuels(refuelings):
     return float(last.get('trip', 0))
 
 def format_cost_in_pesos(cost):
-    """Formatear costo directamente como pesos."""
+    """Format cost directly as pesos."""
     if cost is None:
         return None
     return round(float(cost), 2)
 
 def get_next_service_reminder(reminders):
-    """Obtener próximo recordatorio de servicio."""
+    """Get next service reminder."""
     if not reminders:
         return None
 
@@ -35,12 +35,12 @@ def get_next_service_reminder(reminders):
     if not incomplete_reminders:
         return None
 
-    # Buscar el recordatorio con menor kilometraje
+    # Find reminder with lowest mileage
     next_reminder = min(incomplete_reminders, key=lambda x: x.get('next_odometer', float('inf')))
     return next_reminder
 
 def get_next_service_date_reminder(reminders):
-    """Obtener el recordatorio de servicio más próximo por fecha."""
+    """Get closest service reminder by date."""
     if not reminders:
         return None
 
@@ -48,33 +48,33 @@ def get_next_service_date_reminder(reminders):
     if not incomplete_reminders:
         return None
 
-    # Filtrar solo recordatorios con fechas válidas y convertirlas a objetos datetime para comparación
+    # Filter only reminders with valid dates and convert to datetime objects for comparison
     reminders_with_dates = []
     for r in incomplete_reminders:
         try:
-            # Asumiendo formato 'DD.MM.YYYY' y convirtiendo a 'YYYY-MM-DD'
+            # Assuming 'DD.MM.YYYY' format and converting to 'YYYY-MM-DD'
             date_str = r.get('nextdate')
-            if date_str: # Verificamos que date_str no sea None
+            if date_str: # Check that date_str is not None
                 parsed_date = datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
                 r['parsed_date'] = parsed_date
                 reminders_with_dates.append(r)
         except ValueError:
-            # Ignorar recordatorios con formato de fecha inválido
+            # Ignore reminders with invalid date format
             pass
 
     if not reminders_with_dates:
         return None
 
-    # Buscar el recordatorio con la fecha más cercana (menor fecha)
+    # Find reminder with closest date (earliest date)
     next_reminder = min(reminders_with_dates, key=lambda x: x['parsed_date'])
-    return next_reminder.get('parsed_date') # Devolver la fecha convertida
+    return next_reminder.get('parsed_date') # Return converted date
 
 def calculate_consumption_trend(refuelings):
-    """Calcular tendencia de consumo en los últimos repostajes."""
+    """Calculate consumption trend in recent refuelings."""
     if not refuelings or len(refuelings) < 3:
         return None
     
-    # Obtener consumos de los últimos 3 repostajes (saltamos el primero si no tiene consumo calculado)
+    # Get consumptions from last 3 refuelings (skip first if no consumption calculated)
     consumptions = []
     for refueling in refuelings[:5]:
         consumption = refueling.get('consumption')
@@ -84,21 +84,21 @@ def calculate_consumption_trend(refuelings):
     if len(consumptions) < 3:
         return None
     
-    # Comparar los 2 más recientes vs los 2 anteriores
+    # Compare 2 most recent vs 2 previous
     recent_avg = sum(consumptions[:2]) / 2
     older_avg = sum(consumptions[2:4]) / 2 if len(consumptions) >= 4 else consumptions[2]
     
     difference = recent_avg - older_avg
     
-    if difference > 0.5:  # Mejora significativa (más km/L)
-        return "Mejorando"
-    elif difference < -0.5:  # Empeoramiento significativo
-        return "Empeorando"
+    if difference > 0.5:  # Significant improvement (more km/L)
+        return "Improving"
+    elif difference < -0.5:  # Significant worsening
+        return "Worsening"
     else:
-        return "Estable"
+        return "Stable"
 
 def calculate_consumption_consistency(refuelings):
-    """Calcular consistencia del consumo (desviación estándar)."""
+    """Calculate consumption consistency (standard deviation)."""
     if not refuelings or len(refuelings) < 3:
         return None
     
@@ -111,7 +111,7 @@ def calculate_consumption_consistency(refuelings):
     if len(consumptions) < 3:
         return None
     
-    # Calcular desviación estándar
+    # Calculate standard deviation
     mean = sum(consumptions) / len(consumptions)
     variance = sum((x - mean) ** 2 for x in consumptions) / len(consumptions)
     std_dev = variance ** 0.5
@@ -119,7 +119,7 @@ def calculate_consumption_consistency(refuelings):
     return round(std_dev, 2)
 
 def calculate_avg_refuel_quantity(refuelings):
-    """Calcular promedio de litros por repostaje."""
+    """Calculate average liters per refueling."""
     if not refuelings:
         return None
     
@@ -135,7 +135,7 @@ def calculate_avg_refuel_quantity(refuelings):
     return round(sum(quantities) / len(quantities), 1)
 
 def calculate_avg_days_between_refuels(refuelings):
-    """Calcular días promedio entre repostajes."""
+    """Calculate average days between refuelings."""
     if not refuelings or len(refuelings) < 2:
         return None
     
@@ -144,7 +144,7 @@ def calculate_avg_days_between_refuels(refuelings):
         date_str = refueling.get('date')
         if date_str:
             try:
-                # Asumiendo formato DD.MM.YYYY
+                # Assuming DD.MM.YYYY format
                 date_obj = datetime.strptime(date_str, '%d.%m.%Y')
                 dates.append(date_obj)
             except ValueError:
@@ -153,11 +153,11 @@ def calculate_avg_days_between_refuels(refuelings):
     if len(dates) < 2:
         return None
     
-    # Calcular diferencias entre fechas consecutivas
+    # Calculate differences between consecutive dates
     days_differences = []
     for i in range(len(dates) - 1):
         diff = (dates[i] - dates[i + 1]).days
-        if diff > 0:  # Solo diferencias positivas
+        if diff > 0:  # Only positive differences
             days_differences.append(diff)
     
     if not days_differences:
@@ -166,7 +166,7 @@ def calculate_avg_days_between_refuels(refuelings):
     return round(sum(days_differences) / len(days_differences), 1)
 
 def calculate_price_variability(refuelings):
-    """Calcular variabilidad de precios por litro."""
+    """Calculate price per liter variability."""
     if not refuelings:
         return None
     
@@ -184,13 +184,13 @@ def calculate_price_variability(refuelings):
     return round(max(prices_per_liter) - min(prices_per_liter), 2)
 
 def calculate_eco_driving_index(refuelings, vehicle_avg_consumption):
-    """Calcular índice de conducción ecológica (1-10)."""
+    """Calculate eco driving index (1-10)."""
     if not refuelings or not vehicle_avg_consumption:
         return None
     
-    # Obtener consumos recientes
+    # Get recent consumptions
     recent_consumptions = []
-    for refueling in refuelings[:3]:  # Últimos 3 repostajes
+    for refueling in refuelings[:3]:  # Last 3 refuelings
         consumption = refueling.get('consumption')
         if consumption and float(consumption) > 0:
             recent_consumptions.append(float(consumption))
@@ -201,30 +201,30 @@ def calculate_eco_driving_index(refuelings, vehicle_avg_consumption):
     recent_avg = sum(recent_consumptions) / len(recent_consumptions)
     vehicle_avg = float(vehicle_avg_consumption)
     
-    # Calcular consistencia (menos variabilidad = mejor)
+    # Calculate consistency (less variability = better)
     if len(recent_consumptions) > 1:
         consistency = calculate_consumption_consistency(refuelings) or 0
-        consistency_score = max(0, 10 - consistency * 2)  # Penalizar inconsistencia
+        consistency_score = max(0, 10 - consistency * 2)  # Penalize inconsistency
     else:
         consistency_score = 5
     
-    # Comparar con promedio histórico
-    if recent_avg > vehicle_avg * 1.1:  # 10% mejor que promedio
+    # Compare with historical average
+    if recent_avg > vehicle_avg * 1.1:  # 10% better than average
         performance_score = 10
     elif recent_avg > vehicle_avg:
         performance_score = 8
-    elif recent_avg > vehicle_avg * 0.9:  # Hasta 10% peor
+    elif recent_avg > vehicle_avg * 0.9:  # Up to 10% worse
         performance_score = 6
     else:
         performance_score = 3
     
-    # Promedio ponderado (60% rendimiento, 40% consistencia)
+    # Weighted average (60% performance, 40% consistency)
     eco_index = (performance_score * 0.6 + consistency_score * 0.4)
     
     return round(eco_index, 1)
 
 def calculate_km_to_service(data):
-    """Calcular kilómetros restantes para el próximo servicio."""
+    """Calculate kilometers remaining to next service."""
     if not data.get('last_refueling') or not data.get('reminders'):
         return None
 
@@ -238,21 +238,21 @@ def calculate_km_to_service(data):
     return max(0, service_km - current_km)
 
 def calculate_fuel_level_estimate(data):
-    """Estimar nivel de combustible basado en consumo y distancia."""
+    """Estimate fuel level based on consumption and distance."""
     if not data.get('vehicle') or not data.get('last_refueling'):
         return None
 
-    capacity = float(data['vehicle'].get('capacity', 35))  # Valor por defecto
+    capacity = float(data['vehicle'].get('capacity', 35))  # Default value
     last_refuel_quantity = float(data['last_refueling'].get('quantity', 0))
     consumption_rate = float(data['vehicle'].get('consumption', 14))  # km/L
 
-    # Asumimos que el tanque se llenó en el último repostaje
-    # y estimamos cuánto se ha consumido desde entonces
-    # Nota: esto es una estimación básica, necesitaríamos más datos para ser preciso
+    # Assume tank was filled at last refueling
+    # and estimate how much has been consumed since then
+    # Note: this is a basic estimate, we would need more data to be precise
     return min(capacity, last_refuel_quantity)
 
 def calculate_range_estimate(data):
-    """Estimar autonomía restante."""
+    """Estimate remaining range."""
     fuel_level = calculate_fuel_level_estimate(data)
     if not fuel_level or not data.get('vehicle'):
         return None
@@ -265,25 +265,25 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     sensors = [
-        # === INFORMACIÓN DEL VEHÍCULO ===
+        # === VEHICLE INFORMATION ===
         SpritmonitorSensor(
             coordinator,
             "brand_model",
-            "Marca y modelo",
+            "Brand and Model",
             lambda d: f"{d['vehicle'].get('make', '')} {d['vehicle'].get('model', '')}" if d.get('vehicle') else None,
             icon="mdi:car"
         ),
         SpritmonitorSensor(
             coordinator,
             "license_plate",
-            "Matrícula",
-            lambda d: d['vehicle'].get('sign', 'Desconocida') if d.get('vehicle') else None,
+            "License Plate",
+            lambda d: d['vehicle'].get('sign', 'Unknown') if d.get('vehicle') else None,
             icon="mdi:card-text"
         ),
         SpritmonitorSensor(
             coordinator,
             "fuel_capacity",
-            "Capacidad del tanque",
+            "Tank Capacity",
             lambda d: float(d['vehicle'].get('capacity', 0)) if d.get('vehicle') and d['vehicle'].get('capacity') else None,
             unit=UnitOfVolume.LITERS,
             device_class=SensorDeviceClass.VOLUME,
@@ -292,7 +292,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "total_distance",
-            "Distancia total",
+            "Total Distance",
             lambda d: float(d['vehicle'].get('tripsum', 0)) if d.get('vehicle') else None,
             unit=UnitOfLength.KILOMETERS,
             device_class=SensorDeviceClass.DISTANCE,
@@ -302,7 +302,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "total_fuel",
-            "Combustible total consumido",
+            "Total Fuel Consumed",
             lambda d: float(d['vehicle'].get('quantitysum', 0)) if d.get('vehicle') else None,
             unit=UnitOfVolume.LITERS,
             device_class=SensorDeviceClass.VOLUME,
@@ -312,25 +312,25 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "avg_consumption",
-            "Consumo promedio",
+            "Average Consumption",
             lambda d: float(d['vehicle'].get('consumption', 0)) if d.get('vehicle') else None,
             unit="km/L",
             state_class=SensorStateClass.MEASUREMENT,
             icon="mdi:chart-line"
         ),
 
-        # === ÚLTIMO REPOSTAJE ===
+        # === LAST REFUELING ===
         SpritmonitorSensor(
             coordinator,
             "last_refuel_date",
-            "Última carga - fecha",
+            "Last Refuel Date",
             lambda d: d['last_refueling'].get('date', '') if d.get('last_refueling') else None,
             icon="mdi:calendar"
         ),
         SpritmonitorSensor(
             coordinator,
             "last_refuel_quantity",
-            "Última carga - litros",
+            "Last Refuel Quantity",
             lambda d: float(d['last_refueling'].get('quantity', 0)) if d.get('last_refueling') else None,
             unit=UnitOfVolume.LITERS,
             device_class=SensorDeviceClass.VOLUME,
@@ -340,7 +340,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "last_refuel_cost",
-            "Última carga - precio total",
+            "Last Refuel Total Cost",
             lambda d: format_cost_in_pesos(d['last_refueling'].get('cost', 0)) if d.get('last_refueling') else None,
             unit="UYU",
             device_class=SensorDeviceClass.MONETARY,
@@ -350,19 +350,19 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "last_refuel_price_per_liter",
-            "Última carga - precio por litro",
+            "Last Refuel Price per Liter",
             lambda d: calculate_price_per_liter(
                 d['last_refueling'].get('cost'),
                 d['last_refueling'].get('quantity')
             ) if d.get('last_refueling') else None,
-            unit="UYU/L",  # Asegurado que la unidad sea UYU/L
+            unit="UYU/L",  # Ensure unit is UYU/L
             state_class=SensorStateClass.MEASUREMENT,
             icon="mdi:currency-usd"
         ),
         SpritmonitorSensor(
             coordinator,
             "last_refuel_odometer",
-            "Última carga - kilometraje",
+            "Last Refuel Odometer",
             lambda d: float(d['last_refueling'].get('odometer', 0)) if d.get('last_refueling') else None,
             unit=UnitOfLength.KILOMETERS,
             device_class=SensorDeviceClass.DISTANCE,
@@ -372,7 +372,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "last_refuel_trip",
-            "Última carga - km recorridos",
+            "Last Refuel Trip Distance",
             lambda d: float(d['last_refueling'].get('trip', 0)) if d.get('last_refueling') else None,
             unit=UnitOfLength.KILOMETERS,
             device_class=SensorDeviceClass.DISTANCE,
@@ -382,7 +382,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "last_refuel_consumption",
-            "Última carga - consumo",
+            "Last Refuel Consumption",
             lambda d: float(d['last_refueling'].get('consumption', 0)) if d.get('last_refueling') else None,
             unit="km/L",
             state_class=SensorStateClass.MEASUREMENT,
@@ -391,44 +391,44 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "last_refuel_type",
-            "Última carga - tipo",
-            lambda d: d['last_refueling'].get('type', 'Desconocido') if d.get('last_refueling') else None,
+            "Last Refuel Type",
+            lambda d: d['last_refueling'].get('type', 'Unknown') if d.get('last_refueling') else None,
             icon="mdi:gas-station"
         ),
         SpritmonitorSensor(
             coordinator,
             "last_refuel_location",
-            "Última carga - ubicación",
-            lambda d: d['last_refueling'].get('location', 'Desconocida') if d.get('last_refueling') else None,
+            "Last Refuel Location",
+            lambda d: d['last_refueling'].get('location', 'Unknown') if d.get('last_refueling') else None,
             icon="mdi:map-marker"
         ),
         SpritmonitorSensor(
             coordinator,
             "last_refuel_country",
-            "Última carga - país",
-            lambda d: d['last_refueling'].get('country', 'Desconocido') if d.get('last_refueling') else None,
+            "Last Refuel Country",
+            lambda d: d['last_refueling'].get('country', 'Unknown') if d.get('last_refueling') else None,
             icon="mdi:flag"
         ),
 
-        # === ESTADÍSTICAS DE RANKING ===
+        # === RANKING STATISTICS ===
         SpritmonitorSensor(
             coordinator,
             "ranking_position",
-            "Posición en ranking",
+            "Ranking Position",
             lambda d: d['vehicle']['rankingInfo'].get('rank', None) if d.get('vehicle') and d['vehicle'].get('rankingInfo') else None,
             icon="mdi:trophy"
         ),
         SpritmonitorSensor(
             coordinator,
             "ranking_total",
-            "Total vehículos en ranking",
+            "Total Vehicles in Ranking",
             lambda d: d['vehicle']['rankingInfo'].get('total', None) if d.get('vehicle') and d['vehicle'].get('rankingInfo') else None,
             icon="mdi:account-group"
         ),
         SpritmonitorSensor(
             coordinator,
             "ranking_min_consumption",
-            "Mejor consumo del ranking",
+            "Best Consumption in Ranking",
             lambda d: float(d['vehicle']['rankingInfo'].get('min', 0)) if d.get('vehicle') and d['vehicle'].get('rankingInfo') else None,
             unit="km/L",
             state_class=SensorStateClass.MEASUREMENT,
@@ -437,18 +437,18 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "ranking_avg_consumption",
-            "Consumo promedio del ranking",
+            "Average Consumption in Ranking",
             lambda d: float(d['vehicle']['rankingInfo'].get('avg', 0)) if d.get('vehicle') and d['vehicle'].get('rankingInfo') else None,
             unit="km/L",
             state_class=SensorStateClass.MEASUREMENT,
             icon="mdi:chart-bar"
         ),
 
-        # === PRÓXIMO MANTENIMIENTO ===
+        # === NEXT MAINTENANCE ===
         SpritmonitorSensor(
             coordinator,
             "next_service_km",
-            "Próximo servicio - kilometraje",
+            "Next Service Mileage",
             lambda d: get_next_service_reminder(d.get('reminders', [])).get('next_odometer') if get_next_service_reminder(d.get('reminders', [])) else None,
             unit=UnitOfLength.KILOMETERS,
             device_class=SensorDeviceClass.DISTANCE,
@@ -457,14 +457,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "next_service_note",
-            "Próximo servicio - descripción",
+            "Next Service Description",
             lambda d: get_next_service_reminder(d.get('reminders', [])).get('note') if get_next_service_reminder(d.get('reminders', [])) else None,
             icon="mdi:note-text"
         ),
         SpritmonitorSensor(
             coordinator,
             "next_service_date",
-            "Próximo servicio - fecha",
+            "Next Service Date",
             lambda d: get_next_service_date_reminder(d.get('reminders', [])),
             device_class=SensorDeviceClass.DATE,
             icon="mdi:calendar-clock"
@@ -472,7 +472,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "km_to_next_service",
-            "Kilómetros para próximo servicio",
+            "Kilometers to Next Service",
             lambda d: calculate_km_to_service(d),
             unit=UnitOfLength.KILOMETERS,
             device_class=SensorDeviceClass.DISTANCE,
@@ -480,11 +480,11 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             icon="mdi:car-wrench"
         ),
 
-        # === ESTADÍSTICAS CALCULADAS ===
+        # === CALCULATED STATISTICS ===
         SpritmonitorSensor(
             coordinator,
             "fuel_level_estimate",
-            "Nivel estimado de combustible",
+            "Estimated Fuel Level",
             lambda d: calculate_fuel_level_estimate(d),
             unit=UnitOfVolume.LITERS,
             device_class=SensorDeviceClass.VOLUME,
@@ -494,7 +494,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "range_estimate",
-            "Autonomía estimada",
+            "Estimated Range",
             lambda d: calculate_range_estimate(d),
             unit=UnitOfLength.KILOMETERS,
             device_class=SensorDeviceClass.DISTANCE,
@@ -502,18 +502,18 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             icon="mdi:gas-station-off"
         ),
 
-        # === ANÁLISIS DE TENDENCIAS (basado en últimos 5 repostajes) ===
+        # === TREND ANALYSIS (based on last 5 refuelings) ===
         SpritmonitorSensor(
             coordinator,
             "consumption_trend",
-            "Tendencia de consumo",
+            "Consumption Trend",
             lambda d: calculate_consumption_trend(d.get('refuelings', [])),
             icon="mdi:trending-up"
         ),
         SpritmonitorSensor(
             coordinator,
             "consumption_consistency",
-            "Consistencia de consumo",
+            "Consumption Consistency",
             lambda d: calculate_consumption_consistency(d.get('refuelings', [])),
             unit="km/L",
             state_class=SensorStateClass.MEASUREMENT,
@@ -522,7 +522,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "avg_refuel_quantity",
-            "Promedio litros por carga",
+            "Average Refuel Quantity",
             lambda d: calculate_avg_refuel_quantity(d.get('refuelings', [])),
             unit=UnitOfVolume.LITERS,
             device_class=SensorDeviceClass.VOLUME,
@@ -532,16 +532,16 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "avg_days_between_refuels",
-            "Días promedio entre cargas",
+            "Average Days Between Refuels",
             lambda d: calculate_avg_days_between_refuels(d.get('refuelings', [])),
-            unit="días",
+            unit="days",
             state_class=SensorStateClass.MEASUREMENT,
             icon="mdi:calendar-range"
         ),
         SpritmonitorSensor(
             coordinator,
             "price_variability",
-            "Variabilidad de precios",
+            "Price Variability",
             lambda d: calculate_price_variability(d.get('refuelings', [])),
             unit="UYU/L",
             state_class=SensorStateClass.MEASUREMENT,
@@ -550,7 +550,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(
             coordinator,
             "eco_driving_index",
-            "Índice de conducción eco",
+            "Eco Driving Index",
             lambda d: calculate_eco_driving_index(
                 d.get('refuelings', []), 
                 d.get('vehicle', {}).get('consumption')
@@ -569,7 +569,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, sensor_id, name, value_fn, unit=None, device_class=None, state_class=None, icon=None):
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._sensor_id = sensor_id # <-- Esta línea es vital
+        self._sensor_id = sensor_id # <-- This line is vital
         self._name = name
         self._value_fn = value_fn
         self._attr_native_unit_of_measurement = unit
@@ -577,7 +577,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         self._attr_state_class = state_class
         self._attr_icon = icon
 
-        # Generar unique_id estable
+        # Generate stable unique_id
         vehicle_id = coordinator.data.get('vehicle', {}).get('id', 'unknown') if coordinator.data else 'unknown'
         self._attr_unique_id = f"spritmonitor_{vehicle_id}_{sensor_id}"
         self._attr_name = f"Spritmonitor {name}"
@@ -591,7 +591,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         vehicle = self.coordinator.data['vehicle']
         return DeviceInfo(
             identifiers={(DOMAIN, str(vehicle.get('id', 'unknown')))},
-            name=f"{vehicle.get('make', '')} {vehicle.get('model', '')}".strip() or "Vehículo Spritmonitor",
+            name=f"{vehicle.get('make', '')} {vehicle.get('model', '')}".strip() or "Spritmonitor Vehicle",
             manufacturer=vehicle.get('make', 'Unknown'),
             model=vehicle.get('model', 'Unknown'),
             via_device=None,
