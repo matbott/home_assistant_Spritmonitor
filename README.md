@@ -39,10 +39,10 @@ After installation and restarting Home Assistant:
 1. Go to **Settings > Devices & Services**.
 2. Click **"Add Integration"**.
 3. Search for **"Spritmonitor"**.
-4. Enter your **Vehicle ID**, **Application ID**, and **Bearer Token** from Spritmonitor's API.
+4. Enter your **Vehicle ID** and **Bearer Token** from Spritmonitor's API.
 5. Click **"Submit"**.
 
-NOTE: Application ID = 190e3b1080a39777f369a4e9875df3d7
+NOTE: The Bearer Token can be generated on the Spritmonitor.de website (on the "change password" page, generate a new API access token).
 
 ## Available Sensors
 
