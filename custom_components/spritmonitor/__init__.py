@@ -17,11 +17,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     vehicle_id = entry.data["vehicle_id"]
-    app_token = entry.data["app_token"]
     bearer_token = entry.data["bearer_token"]
 
     headers = {
-        "Application-Id": app_token,
+        "Application-Id": "095369dede84c55797c22d4854ca6efe",
         "Authorization": bearer_token
     }
 
