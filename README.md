@@ -1,87 +1,49 @@
-# Spritmonitor Custom Component for Home Assistant
+Spritmonitor for Home Assistant
+Integrate your vehicle's fuel consumption, costs, and maintenance data from Spritmonitor.de directly into Home Assistant.
 
-This Home Assistant custom component integrates data from [Spritmonitor.de](https://www.spritmonitor.de), allowing you to monitor your vehicle's fuel consumption, costs, and maintenance directly within Home Assistant.
+Main Features
+This integration exposes a wealth of data as entities in Home Assistant, including:
 
-## Features
+Vehicle Info: Brand, model, license plate, and tank capacity.
+Refueling Data: Details from the last refueling like date, quantity, cost, consumption, and odometer.
+Maintenance: Alerts for the next service by mileage and date.
+Stats & Estimates: Average consumption, ranking, fuel level, and estimated range.
+Advanced Insights
+Get deeper insights into your driving with unique sensors:
 
-- **Vehicle Data**: Brand, model, license plate, tank capacity, total distance, and total fuel.
-- **Last Refueling**: Date, liters, total cost (in UYU), price per liter, odometer, trip distance, consumption, type, location, and country.
-- **Average Consumption**: Overall average consumption (km/L).
-- **Ranking**: Vehicle's position and average consumption within Spritmonitor rankings.
-- **Next Service**: Upcoming service mileage, date, and note.
-- **Estimates**: Estimated fuel level and remaining range.
-- **New Insights**:
-  - 🔄 **Consumption Trend**: Improving / Worsening / Stable.
-  - 📊 **Consumption Consistency**: How variable your fuel consumption is over time.
-  - ⛽ **Average Liters per Refueling**: Your typical refueling amount.
-  - 📅 **Average Days Between Refuels**: Refueling frequency.
-  - 💰 **Price Variability**: Difference between your highest and lowest price per liter.
-  - 🌱 **Eco Driving Index**: Efficiency score from 1 (worst) to 10 (best).
-
-## Installation
-
-### Recommended Installation (HACS)
-
-1. Open HACS in Home Assistant.
-2. Go to **"Integrations"**.
-3. Click the **"..."** (three dots) button in the top right and select **"Custom repositories"**.
-4. Paste the repository URL:  
-   `https://github.com/matbott/home_assistant_Spritmonitor`
-5. Select **"Integration"** as the **Category**.
-6. Click **"Add"**.
-7. Search for **"Spritmonitor"** in HACS, click **"Install"**, and follow the prompts.
-8. **Restart Home Assistant** after installation.
-
-## Configuration
-
-After installation and restarting Home Assistant:
-
-1. Go to **Settings > Devices & Services**.
-2. Click **"Add Integration"**.
-3. Search for **"Spritmonitor"**.
-4. Enter your **Vehicle ID**, **Application ID**, and **Bearer Token** from Spritmonitor's API.
-5. Click **"Submit"**.
-
-NOTE: Token format = Bearer xxxxxxxxxxxxxxxxxx
+🔄 Consumption Trend: Find out if your efficiency is Improving, Worsening, or Stable.
+📊 Consumption Consistency: Measures the variability of your consumption between refuelings.
+⛽ Average per Refueling: Know your typical refueling volume.
+📅 Average Days Between Refuels: Discover your refueling frequency.
+💰 Price Variability: The difference between the highest and lowest price per unit you've paid.
+🌱 Eco-Driving Index: A 1-10 score on your driving efficiency.
+Installation (HACS)
+In HACS, go to Integrations.
+Click the three dots (menu) and select "Custom repositories".
+Paste the repository URL: https://github.com/matbott/home_assistant_Spritmonitor
+Select the category "Integration" and click "Add".
+Search for "Spritmonitor" in HACS, click "Install", and follow the steps.
+Restart Home Assistant after installation.
+Configuration
+Go to Settings > Devices & Services.
+Click "Add Integration" and search for "Spritmonitor".
+Enter your Spritmonitor API credentials.
+Click "Submit".
 
 NOTE: Application ID = 095369dede84c55797c22d4854ca6efe
 
-## Available Sensors
+NOTE: Token format = Bearer xxxxxxxxxxxxxxxxxx
 
-All sensors will be grouped under a device named:  
-`Spritmonitor - [Make] [Model]`  
-They follow the naming pattern:  
-`sensor.spritmonitor_vehicle_[SENSOR_NAME]`
+Entities
+All sensors will be grouped under a device named after your vehicle (e.g., Ford Focus).
 
-### Sensor Categories
+Entity IDs are now short and clean, for example: sensor.estimated_range or sensor.last_refuel_cost.
 
-- **Vehicle Info**: Brand, model, license plate, tank capacity, total distance, total fuel.
-- **Last Refueling**: Date, liters, cost (UYU), price per liter, odometer, trip, consumption, type, location, country.
-- **Average Consumption**: Overall km/L.
-- **Ranking**: Your vehicle's rank and average consumption compared to others.
-- **Next Service**: Estimated mileage/date for next service and any notes.
-- **Estimates**: Fuel level (%) and estimated remaining range.
+Troubleshooting
+Integration not found: Check the logs under Settings > System > Logs for errors.
+Sensors unavailable: Ensure your API credentials are correct and that Home Assistant has an active internet connection.
+Contributions
+Contributions are welcome! Feel free to open an issue or submit a pull request.
 
-### New Advanced Sensors
-
-- 🔄 `Consumption Trend`: Improving / Worsening / Stable.
-- 📊 `Consumption Consistency`: Indicates variability in consumption across refuels.
-- ⛽ `Average Liters per Refueling`: Average volume of each refuel.
-- 📅 `Average Days Between Refuels`: How often you refuel.
-- 💰 `Price Variability`: Difference between your highest and lowest price per liter.
-- 🌱 `Eco Driving Index`: A 1–10 score representing how eco-friendly your driving style is.
-
-## Troubleshooting
-
-- **Integration not showing**: Check Home Assistant logs under `Settings > System > Logs`. Ensure the `custom_components/spritmonitor/` folder is structured correctly and `manifest.json` is valid.
-- **Sensors not updating or unavailable**: Double-check your API credentials. Also confirm that Home Assistant has a working internet connection.
-
-## Contributions
-
-Contributions are very welcome!  
-Feel free to fork this project, create pull requests, or open issues.
-
-## License
-
-This project is licensed under the MIT License.  
-See the `LICENSE` file for full details.
+License
+This project is licensed under the MIT License. See the LICENSE file for details.
