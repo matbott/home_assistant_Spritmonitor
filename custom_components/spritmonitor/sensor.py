@@ -48,8 +48,7 @@ def get_next_service_date_reminder(reminders):
         try:
             date_str = r.get('nextdate')
             if date_str:
-                # Expect YYYY-MM-DD format and return a date object
-                parsed_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                parsed_date = datetime.strptime(date_str, '%d.%m.%Y').date()
                 r['parsed_date'] = parsed_date
                 reminders_with_dates.append(r)
         except (ValueError, TypeError):
