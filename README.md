@@ -42,6 +42,7 @@ After installation and restarting Home Assistant:
 4. Enter your **Vehicle ID**, **Application ID**, and **Bearer Token** from Spritmonitor's API.
 5. Click **"Submit"**.
 
+NOTE: Token format = Bearer xxxxxxxxxxxxxxxxxx
 NOTE: Application ID = 095369dede84c55797c22d4854ca6efe
 
 ## Available Sensors
