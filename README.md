@@ -1,49 +1,64 @@
-Spritmonitor for Home Assistant
-Integrate your vehicle's fuel consumption, costs, and maintenance data from Spritmonitor.de directly into Home Assistant.
+# Spritmonitor for Home Assistant
 
-Main Features
+Integrate your vehicle's fuel consumption, costs, and maintenance data from [Spritmonitor.de](https://www.spritmonitor.de) directly into Home Assistant.
+
+## Main Features
+
 This integration exposes a wealth of data as entities in Home Assistant, including:
 
-Vehicle Info: Brand, model, license plate, and tank capacity.
-Refueling Data: Details from the last refueling like date, quantity, cost, consumption, and odometer.
-Maintenance: Alerts for the next service by mileage and date.
-Stats & Estimates: Average consumption, ranking, fuel level, and estimated range.
-Advanced Insights
+-   **Vehicle Info:** Brand, model, license plate, and tank capacity.
+-   **Refueling Data:** Details from the last refueling like date, quantity, cost, consumption, and odometer.
+-   **Maintenance:** Alerts for the next service by mileage and date.
+-   **Stats & Estimates:** Average consumption, ranking, fuel level, and estimated range.
+
+### Advanced Insights
+
 Get deeper insights into your driving with unique sensors:
+-   🔄 **Consumption Trend:** Find out if your efficiency is `Improving`, `Worsening`, or `Stable`.
+-   📊 **Consumption Consistency:** Measures the variability of your consumption between refuelings.
+-   ⛽ **Average per Refueling:** Know your typical refueling volume.
+-   📅 **Average Days Between Refuels:** Discover your refueling frequency.
+-   💰 **Price Variability:** The difference between the highest and lowest price per unit you've paid.
+-   🌱 **Eco-Driving Index:** A 1-10 score on your driving efficiency.
 
-🔄 Consumption Trend: Find out if your efficiency is Improving, Worsening, or Stable.
-📊 Consumption Consistency: Measures the variability of your consumption between refuelings.
-⛽ Average per Refueling: Know your typical refueling volume.
-📅 Average Days Between Refuels: Discover your refueling frequency.
-💰 Price Variability: The difference between the highest and lowest price per unit you've paid.
-🌱 Eco-Driving Index: A 1-10 score on your driving efficiency.
-Installation (HACS)
-In HACS, go to Integrations.
-Click the three dots (menu) and select "Custom repositories".
-Paste the repository URL: https://github.com/matbott/home_assistant_Spritmonitor
-Select the category "Integration" and click "Add".
-Search for "Spritmonitor" in HACS, click "Install", and follow the steps.
-Restart Home Assistant after installation.
-Configuration
-Go to Settings > Devices & Services.
-Click "Add Integration" and search for "Spritmonitor".
-Enter your Spritmonitor API credentials.
-Click "Submit".
+## Installation (HACS)
 
-NOTE: Application ID = 095369dede84c55797c22d4854ca6efe
+1.  In HACS, go to **Integrations**.
+2.  Click the three dots (menu) and select **"Custom repositories"**.
+3.  Paste the repository URL:
+    ```
+    [https://github.com/matbott/home_assistant_Spritmonitor](https://github.com/matbott/home_assistant_Spritmonitor)
+    ```
+4.  Select the category **"Integration"** and click **"Add"**.
+5.  Search for **"Spritmonitor"** in HACS, click **"Install"**, and follow the steps.
+6.  **Restart Home Assistant** after installation.
 
-NOTE: Token format = Bearer xxxxxxxxxxxxxxxxxx
+## Configuration
 
-Entities
-All sensors will be grouped under a device named after your vehicle (e.g., Ford Focus).
+1.  Go to **Settings > Devices & Services**.
+2.  Click **"Add Integration"** and search for **"Spritmonitor"**.
+3.  Enter your Spritmonitor API credentials.
+4.  Click **"Submit"**.
 
-Entity IDs are now short and clean, for example: sensor.estimated_range or sensor.last_refuel_cost.
+NOTE: Application ID = `095369dede84c55797c22d4854ca6efe`
 
-Troubleshooting
-Integration not found: Check the logs under Settings > System > Logs for errors.
-Sensors unavailable: Ensure your API credentials are correct and that Home Assistant has an active internet connection.
-Contributions
+NOTE: Token format = `Bearer xxxxxxxxxxxxxxxxxx`
+
+## Entities
+
+All sensors will be grouped under a device named after your vehicle (e.g., `Ford Focus`).
+
+Entity IDs are now short and clean, for example: `sensor.estimated_range` or `sensor.last_refuel_cost`.
+
+## Troubleshooting
+
+-   **Integration not found:** Check the logs under **Settings > System > Logs** for errors.
+-   **Sensors unavailable:** Ensure your API credentials are correct and that Home Assistant has an active internet connection.
+
+## Contributions
+
 Contributions are welcome! Feel free to open an issue or submit a pull request.
 
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
