@@ -25,28 +25,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "Authorization": bearer_token
     }
 
-    # Usar la sesión de Home Assistant en lugar de crear una nueva
+    # Use the Home Assistant session instead of creating a new one
     session = async_get_clientsession(hass)
 
     async def async_update_data():
         """Fetch data from API endpoint."""
         try:
-            # Obtener información del vehículo
+            # Fetch vehicle information
             async with session.get(
-                "https://api.spritmonitor.de/v1/vehicles.json", 
+                "https://api.spritmonitor.de/v1/vehicles.json",
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=30)
             ) as response:
                 response.raise_for_status()
                 vehicles = await response.json()
                 vehicle_info = next((v for v in vehicles if v["id"] == vehicle_id), None)
-                
-                if not vehicle_info:
-                    raise UpdateFailed(f"Vehículo con ID {vehicle_id} no encontrado")
 
-            # Obtener últimos 5 repostajes
+                if not vehicle_info:
+                    raise UpdateFailed(f"Vehicle with ID {vehicle_id} not found")
+
+            # Fetch last 5 fuelings
             async with session.get(
-                f"https://api.spritmonitor.de/v1/vehicle/{vehicle_id}/fuelings.json?limit=5", 
+                f"https://api.spritmonitor.de/v1/vehicle/{vehicle_id}/fuelings.json?limit=5",
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=30)
             ) as response:
@@ -55,32 +55,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 last_refueling = refuelings[0] if refuelings else None
                 previous_refueling = refuelings[1] if len(refuelings) > 1 else None
 
-            # Obtener recordatorios/mantenimientos
+            # Fetch reminders/maintenance
             reminders = None
             try:
                 async with session.get(
-                    "https://api.spritmonitor.de/v1/reminders.json", 
+                    "https://api.spritmonitor.de/v1/reminders.json",
                     headers=headers,
                     timeout=aiohttp.ClientTimeout(total=30)
                 ) as response:
                     if response.status == 200:
                         all_reminders = await response.json()
-                        # Filtrar solo los recordatorios de este vehículo
+                        # Filter only the reminders for this vehicle
                         reminders = [r for r in all_reminders if r.get('vehicle') == vehicle_id]
             except Exception as e:
-                _LOGGER.debug("No se pudieron obtener recordatorios: %s", e)
+                _LOGGER.debug("Could not fetch reminders: %s", e)
 
             return {
                 "vehicle": vehicle_info,
                 "last_refueling": last_refueling,
                 "previous_refueling": previous_refueling,
-                "refuelings": refuelings,  # Lista completa de repostajes
+                "refuelings": refuelings,  # Full list of recent fuelings
                 "reminders": reminders,
             }
         except aiohttp.ClientError as e:
-            raise UpdateFailed(f"Error de conexión con Spritmonitor: {e}")
+            raise UpdateFailed(f"Connection error with Spritmonitor: {e}")
         except Exception as e:
-            raise UpdateFailed(f"Error al obtener datos de Spritmonitor: {e}")
+            raise UpdateFailed(f"Error fetching data from Spritmonitor: {e}")
 
     coordinator = DataUpdateCoordinator(
         hass,
@@ -94,15 +94,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Cargar la plataforma sensor
+    # Forward the setup to the sensor platform
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
 
     return True
 
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     unload_ok = await hass.config_entries.async_unload_platforms(entry, ["sensor"])
-    
+
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
 
