@@ -10,7 +10,8 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 DOMAIN = "spritmonitor"
 _LOGGER = logging.getLogger(__name__)
-SCAN_INTERVAL = timedelta(hours=6)
+# MODIFICADO: Ya no necesitamos una constante global para el intervalo
+# SCAN_INTERVAL = timedelta(hours=6)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Spritmonitor from a config entry."""
@@ -19,19 +20,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     vehicle_id = entry.data["vehicle_id"]
     app_token = entry.data["app_token"]
     bearer_token = entry.data["bearer_token"]
+    # AÑADIDO: Obtenemos el intervalo de actualización desde la configuración
+    update_interval_hours = entry.data["update_interval"]
 
     headers = {
         "Application-Id": app_token,
         "Authorization": bearer_token
     }
 
-    # Use the Home Assistant session instead of creating a new one
     session = async_get_clientsession(hass)
 
     async def async_update_data():
         """Fetch data from API endpoint."""
         try:
-            # Fetch vehicle information
+            # (El resto de esta función no necesita cambios)
             async with session.get(
                 "https://api.spritmonitor.de/v1/vehicles.json",
                 headers=headers,
@@ -44,7 +46,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if not vehicle_info:
                     raise UpdateFailed(f"Vehicle with ID {vehicle_id} not found")
 
-            # Fetch last 5 fuelings
             async with session.get(
                 f"https://api.spritmonitor.de/v1/vehicle/{vehicle_id}/fuelings.json?limit=5",
                 headers=headers,
@@ -55,7 +56,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 last_refueling = refuelings[0] if refuelings else None
                 previous_refueling = refuelings[1] if len(refuelings) > 1 else None
 
-            # Fetch reminders/maintenance
             reminders = None
             try:
                 async with session.get(
@@ -65,7 +65,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 ) as response:
                     if response.status == 200:
                         all_reminders = await response.json()
-                        # Filter only the reminders for this vehicle
                         reminders = [r for r in all_reminders if r.get('vehicle') == vehicle_id]
             except Exception as e:
                 _LOGGER.debug("Could not fetch reminders: %s", e)
@@ -74,7 +73,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 "vehicle": vehicle_info,
                 "last_refueling": last_refueling,
                 "previous_refueling": previous_refueling,
-                "refuelings": refuelings,  # Full list of recent fuelings
+                "refuelings": refuelings,
                 "reminders": reminders,
             }
         except aiohttp.ClientError as e:
@@ -87,14 +86,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER,
         name="spritmonitor_coordinator",
         update_method=async_update_data,
-        update_interval=SCAN_INTERVAL,
+        # MODIFICADO: Usamos el intervalo de actualización dinámico
+        update_interval=timedelta(hours=update_interval_hours),
     )
 
     await coordinator.async_config_entry_first_refresh()
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Forward the setup to the sensor platform
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
 
     return True
