@@ -37,8 +37,9 @@ Get deeper insights into your driving with unique sensors:
 
 1.  Go to **Settings > Devices & Services**.
 2.  Click **"Add Integration"** and search for **"Spritmonitor"**.
-3.  Enter your Spritmonitor API credentials.
-4.  Click **"Submit"**.
+3.  Enter your ID vehicule.
+4.  Enter your Spritmonitor API credentials.
+5.  Click **"Submit"**.
 
 NOTE: Application ID = `095369dede84c55797c22d4854ca6efe`
 
