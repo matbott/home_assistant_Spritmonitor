@@ -8,6 +8,8 @@ import logging
 DOMAIN = "spritmonitor"
 _LOGGER = logging.getLogger(__name__)
 
+# Valor predeterminado para el token de la aplicación
+DEFAULT_APP_TOKEN = "095369dede84c55797c22d4854ca6efe"
 
 class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Spritmonitor."""
@@ -20,23 +22,24 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                vehicle_id = user_input["vehicle_id"]
-                app_token = user_input["app_token"]
-                bearer_token = user_input["bearer_token"]
-
-                # Test the connection
-                is_valid = await self._test_credentials(
-                    vehicle_id, app_token, bearer_token
+                # Obtenemos la información del vehículo para validarla y obtener el nombre
+                vehicle_info = await self._get_vehicle_info(
+                    user_input["vehicle_id"],
+                    user_input["app_token"],
+                    user_input["bearer_token"]
                 )
 
-                if is_valid:
-                    # Create a more descriptive title
-                    title = f"Spritmonitor Vehicle {vehicle_id}"
-
-                    # Check if an entry for this vehicle already exists
-                    await self.async_set_unique_id(f"spritmonitor_{vehicle_id}")
+                if vehicle_info:
+                    # MODIFICADO: Creamos un título descriptivo con la marca y el modelo
+                    make = vehicle_info.get("make", "")
+                    model = vehicle_info.get("model", "")
+                    title = f"{make} {model}".strip() if make and model else f"Spritmonitor Vehicle {user_input['vehicle_id']}"
+                    
+                    # Guardamos el ID único para evitar duplicados
+                    await self.async_set_unique_id(f"spritmonitor_{user_input['vehicle_id']}")
                     self._abort_if_unique_id_configured()
 
+                    # Creamos la entrada de configuración con los datos y el nuevo título
                     return self.async_create_entry(title=title, data=user_input)
                 else:
                     errors["base"] = "invalid_auth"
@@ -44,24 +47,31 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Error during configuration: %s", e)
                 errors["base"] = "cannot_connect"
 
-        # Show the form
+        # MODIFICADO: Mostramos el formulario con los nuevos valores predeterminados y el campo de intervalo
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
                 vol.Required("vehicle_id"): int,
-                vol.Required("app_token"): str,
-                vol.Required("bearer_token"): str
+                # MODIFICADO: Token con valor predeterminado
+                vol.Required("app_token", default=DEFAULT_APP_TOKEN): str,
+                vol.Required("bearer_token"): str,
+                # AÑADIDO: Campo para el intervalo de actualización en horas
+                vol.Required("update_interval", default=6): vol.All(vol.Coerce(int), vol.Range(min=1, max=24))
             }),
             errors=errors,
             description_placeholders={
                 "vehicle_id": "Spritmonitor Vehicle ID",
                 "app_token": "Spritmonitor Application Token",
-                "bearer_token": "Authorization Bearer Token"
+                "bearer_token": "Authorization Bearer Token",
+                "update_interval": "Update interval in hours"
             }
         )
 
-    async def _test_credentials(self, vehicle_id: int, app_token: str, bearer_token: str) -> bool:
-        """Test if the credentials are valid."""
+    async def _get_vehicle_info(self, vehicle_id: int, app_token: str, bearer_token: str) -> dict | None:
+        """
+        MODIFICADO: Test credentials and get vehicle info.
+        Devuelve el diccionario del vehículo si es exitoso, sino None.
+        """
         try:
             session = async_get_clientsession(self.hass)
             headers = {
@@ -76,11 +86,11 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ) as response:
                 if response.status == 200:
                     vehicles = await response.json()
-                    # Verify that the vehicle exists
-                    vehicle_exists = any(v["id"] == vehicle_id for v in vehicles)
-                    return vehicle_exists
+                    # Buscamos el vehículo y lo devolvemos si existe
+                    vehicle = next((v for v in vehicles if v["id"] == vehicle_id), None)
+                    return vehicle
                 else:
-                    return False
+                    return None
         except Exception as e:
             _LOGGER.error("Error testing credentials: %s", e)
-            return False
+            return None
