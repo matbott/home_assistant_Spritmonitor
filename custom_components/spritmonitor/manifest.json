@@ -2,7 +2,7 @@
   "domain": "spritmonitor",
   "name": "Spritmonitor",
   "version": "1.3.0",
-  "codeowners": ["@matbott"],
+  "codeowners": ["@tu-usuario-de-github"],
   "config_flow": true,
   "documentation": "https://github.com/matbott/home_assistant_Spritmonitor",
   "issue_tracker": "https://github.com/matbott/home_assistant_Spritmonitor/issues",
