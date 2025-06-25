@@ -3,7 +3,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.const import UnitOfVolume, UnitOfLength, CURRENCY_EURO
 from datetime import datetime, date
-from . import DOMAIN
+from .const import DOMAIN
 
 def calculate_price_per_liter(cost, quantity):
     """Calculate price per liter."""
@@ -38,11 +38,9 @@ def get_next_service_date_reminder(reminders):
     """Get closest service reminder by date."""
     if not reminders:
         return None
-
     incomplete_reminders = [r for r in reminders if r.get('completed') == 0 and r.get('nextdate')]
     if not incomplete_reminders:
         return None
-
     reminders_with_dates = []
     for r in incomplete_reminders:
         try:
@@ -52,13 +50,9 @@ def get_next_service_date_reminder(reminders):
                 r['parsed_date'] = parsed_date
                 reminders_with_dates.append(r)
         except (ValueError, TypeError):
-            # Ignore reminders with invalid or null date format
             pass
-
     if not reminders_with_dates:
         return None
-
-    # Find reminder with the closest date (earliest)
     next_reminder = min(reminders_with_dates, key=lambda x: x['parsed_date'])
     return next_reminder.get('parsed_date')
 
@@ -66,31 +60,23 @@ def calculate_consumption_trend(refuelings):
     """Calculate consumption trend in recent refuelings."""
     if not refuelings or len(refuelings) < 3:
         return None
-    
     consumptions = [float(r['consumption']) for r in refuelings[:5] if r.get('consumption') and float(r.get('consumption')) > 0]
     if len(consumptions) < 3:
         return None
-    
     recent_avg = sum(consumptions[:2]) / 2
     older_avg = sum(consumptions[2:4]) / 2 if len(consumptions) >= 4 else consumptions[2]
     difference = recent_avg - older_avg
-    
-    if difference > 0.5:
-        return "Improving"
-    elif difference < -0.5:
-        return "Worsening"
-    else:
-        return "Stable"
+    if difference > 0.5: return "Improving"
+    elif difference < -0.5: return "Worsening"
+    else: return "Stable"
 
 def calculate_consumption_consistency(refuelings):
     """Calculate consumption consistency (standard deviation)."""
     if not refuelings or len(refuelings) < 3:
         return None
-    
     consumptions = [float(r['consumption']) for r in refuelings[:5] if r.get('consumption') and float(r.get('consumption')) > 0]
     if len(consumptions) < 3:
         return None
-    
     mean = sum(consumptions) / len(consumptions)
     variance = sum((x - mean) ** 2 for x in consumptions) / len(consumptions)
     std_dev = variance ** 0.5
@@ -98,89 +84,61 @@ def calculate_consumption_consistency(refuelings):
 
 def calculate_avg_refuel_quantity(refuelings):
     """Calculate average liters per refueling."""
-    if not refuelings:
-        return None
-    
+    if not refuelings: return None
     quantities = [float(r['quantity']) for r in refuelings[:5] if r.get('quantity') and float(r.get('quantity')) > 0]
-    if not quantities:
-        return None
+    if not quantities: return None
     return round(sum(quantities) / len(quantities), 1)
 
 def calculate_avg_days_between_refuels(refuelings):
     """Calculate average days between refuelings."""
-    if not refuelings or len(refuelings) < 2:
-        return None
-    
+    if not refuelings or len(refuelings) < 2: return None
     dates = []
     for refueling in refuelings[:5]:
         date_str = refueling.get('date')
         if date_str:
             try:
-                # Assuming DD.MM.YYYY format from Spritmonitor fueling entries
                 dates.append(datetime.strptime(date_str, '%d.%m.%Y'))
             except ValueError:
                 continue
-    
-    if len(dates) < 2:
-        return None
-    
+    if len(dates) < 2: return None
     days_differences = [(dates[i] - dates[i + 1]).days for i in range(len(dates) - 1) if (dates[i] - dates[i + 1]).days > 0]
-    if not days_differences:
-        return None
+    if not days_differences: return None
     return round(sum(days_differences) / len(days_differences), 1)
 
 def calculate_price_variability(refuelings):
     """Calculate price per liter variability."""
-    if not refuelings:
-        return None
-    
+    if not refuelings: return None
     prices_per_liter = [float(r['cost']) / float(r['quantity']) for r in refuelings[:5] if r.get('cost') and r.get('quantity') and float(r.get('quantity')) > 0]
-    if len(prices_per_liter) < 2:
-        return None
+    if len(prices_per_liter) < 2: return None
     return round(max(prices_per_liter) - min(prices_per_liter), 2)
 
 def calculate_eco_driving_index(refuelings, vehicle_avg_consumption):
     """Calculate eco driving index (1-10)."""
-    if not refuelings or not vehicle_avg_consumption:
-        return None
-    
+    if not refuelings or not vehicle_avg_consumption: return None
     recent_consumptions = [float(r['consumption']) for r in refuelings[:3] if r.get('consumption') and float(r.get('consumption')) > 0]
-    if not recent_consumptions:
-        return None
-    
+    if not recent_consumptions: return None
     recent_avg = sum(recent_consumptions) / len(recent_consumptions)
     vehicle_avg = float(vehicle_avg_consumption)
-    
     consistency = calculate_consumption_consistency(refuelings) or 0
     consistency_score = max(0, 10 - consistency * 2)
-    
-    if recent_avg > vehicle_avg * 1.1:
-        performance_score = 10
-    elif recent_avg > vehicle_avg:
-        performance_score = 8
-    elif recent_avg > vehicle_avg * 0.9:
-        performance_score = 6
-    else:
-        performance_score = 3
-    
+    if recent_avg > vehicle_avg * 1.1: performance_score = 10
+    elif recent_avg > vehicle_avg: performance_score = 8
+    elif recent_avg > vehicle_avg * 0.9: performance_score = 6
+    else: performance_score = 3
     eco_index = (performance_score * 0.6 + consistency_score * 0.4)
     return round(eco_index, 1)
 
 def calculate_km_to_service(data):
     """Calculate kilometers remaining to next service."""
     next_service = get_next_service_reminder(data.get('reminders', []))
-    if not next_service or not data.get('last_refueling'):
-        return None
-    
+    if not next_service or not data.get('last_refueling'): return None
     current_km = float(data['last_refueling'].get('odometer', 0))
     service_km = next_service.get('next_odometer', 0)
     return max(0, service_km - current_km)
 
 def calculate_fuel_level_estimate(data):
     """Estimate fuel level based on consumption and distance."""
-    if not data.get('vehicle') or not data.get('last_refueling'):
-        return None
-    
+    if not data.get('vehicle') or not data.get('last_refueling'): return None
     capacity = float(data['vehicle'].get('capacity', 35))
     last_refuel_quantity = float(data['last_refueling'].get('quantity', 0))
     return min(capacity, last_refuel_quantity)
@@ -188,9 +146,7 @@ def calculate_fuel_level_estimate(data):
 def calculate_range_estimate(data):
     """Estimate remaining range."""
     fuel_level = calculate_fuel_level_estimate(data)
-    if not fuel_level or not data.get('vehicle'):
-        return None
-    
+    if not fuel_level or not data.get('vehicle'): return None
     consumption_rate = float(data['vehicle'].get('consumption', 14))
     return round(fuel_level * consumption_rate, 0)
 
@@ -198,7 +154,6 @@ def calculate_range_estimate(data):
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Spritmonitor sensors based on a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
-
     sensors = [
         # === VEHICLE INFORMATION ===
         SpritmonitorSensor(coordinator, "brand_model", "Brand and Model", lambda d: f"{d['vehicle'].get('make', '')} {d['vehicle'].get('model', '')}" if d.get('vehicle') else None, icon="mdi:car"),
@@ -244,9 +199,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(coordinator, "price_variability", "Price Variability", lambda d: calculate_price_variability(d.get('refuelings', [])), unit="UYU/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:chart-line-variant"),
         SpritmonitorSensor(coordinator, "eco_driving_index", "Eco Driving Index", lambda d: calculate_eco_driving_index(d.get('refuelings', []), d.get('vehicle', {}).get('consumption')), unit="/10", state_class=SensorStateClass.MEASUREMENT, icon="mdi:leaf"),
     ]
-
     async_add_entities(sensors)
-
 
 class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Spritmonitor sensor."""
@@ -259,13 +212,8 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
         self._attr_icon = icon
-
         vehicle_id = coordinator.data.get('vehicle', {}).get('id', 'unknown') if coordinator.data else 'unknown'
-        
-        # This creates a stable, unique ID for Home Assistant to track the entity
         self._attr_unique_id = f"spritmonitor_{vehicle_id}_{sensor_id}"
-        
-        # This sets the friendly name (e.g., "Estimated Range") and is used to generate the entity ID (e.g., "sensor.estimated_range")
         self._attr_name = name
 
     @property
@@ -273,7 +221,6 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         """Return device information about this sensor."""
         if not self.coordinator.data or not self.coordinator.data.get('vehicle'):
             return None
-
         vehicle = self.coordinator.data['vehicle']
         return DeviceInfo(
             identifiers={(DOMAIN, str(vehicle.get('id', 'unknown')))},
