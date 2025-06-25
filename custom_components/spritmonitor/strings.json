@@ -1,0 +1,26 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar Spritmonitor",
+        "description": "Configura tu integración con Spritmonitor para monitorear tu vehículo",
+        "data": {
+          "vehicle_id": "ID del Vehículo",
+          "app_token": "Token de Aplicación",
+          "bearer_token": "Token Bearer",
+          "update_interval": "Intervalo de Actualización (horas)"
+        },
+        "data_description": {
+          "vehicle_id": "El ID numérico de tu vehículo en Spritmonitor",
+          "app_token": "Token de aplicación proporcionado por Spritmonitor",
+          "bearer_token": "Token de autorización en formato: Bearer tu_token_aquí (ejemplo: Bearer abc123xyz)",
+          "update_interval": "Intervalo de actualización en horas (entre 1 y 24 horas)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Las credenciales proporcionadas no son válidas",
+      "cannot_connect": "No se pudo conectar con Spritmonitor. Verifica tu conexión a internet y las credenciales"
+    }
+  }
+}
