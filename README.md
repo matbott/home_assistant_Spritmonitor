@@ -1,5 +1,7 @@
 # Spritmonitor for Home Assistant
 
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=matbott&repository=home_assistant_Spritmonitor&category=integration)
+
 Integrate your vehicle's fuel consumption, costs, and maintenance data from [Spritmonitor.de](https://www.spritmonitor.de) directly into Home Assistant.
 
 ## Main Features
