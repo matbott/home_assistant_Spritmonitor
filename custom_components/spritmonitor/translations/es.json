@@ -1,0 +1,70 @@
+{
+  "title": "Spritmonitor⛽",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar Spritmonitor",
+        "description": "Ingresa las credenciales de tu vehículo en Spritmonitor.",
+        "data": {
+          "vehicle_id": "ID del vehículo",
+          "app_token": "Token de aplicación",
+          "bearer_token": "Token Bearer = Bearer 1234yyyxxxzzz...",
+          "update_interval": "Intervalo de actualización (horas)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Autenticación inválida. Verifica el ID del vehículo, el App Token y el Bearer Token.",
+      "cannot_connect": "No se puede conectar a Spritmonitor. Intenta nuevamente."
+    },
+    "abort": {
+      "already_configured": "Este vehículo ya está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Spritmonitor",
+        "data": {
+          "update_interval": "Intervalo de actualización (horas)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "brand_model": { "name": "Marca y Modelo" },
+      "license_plate": { "name": "Matrícula" },
+      "fuel_capacity": { "name": "Capacidad de Combustible" },
+      "total_distance": { "name": "Distancia Total Recorrida" },
+      "total_fuel": { "name": "Combustible Total Consumido" },
+      "avg_consumption": { "name": "Consumo Promedio" },
+      "last_refuel_date": { "name": "Fecha de Último Repostaje" },
+      "last_refuel_quantity": { "name": "Cantidad Último Repostaje" },
+      "last_refuel_cost": { "name": "Costo Último Repostaje" },
+      "last_refuel_price_per_liter": { "name": "Precio por Litro Último Repostaje" },
+      "last_refuel_odometer": { "name": "Odómetro en Último Repostaje" },
+      "last_refuel_trip": { "name": "Distancia Viaje Último Repostaje" },
+      "last_refuel_consumption": { "name": "Consumo Último Repostaje" },
+      "last_refuel_type": { "name": "Tipo de Combustible Último Repostaje" },
+      "last_refuel_location": { "name": "Ubicación Último Repostaje" },
+      "last_refuel_country": { "name": "País Último Repostaje" },
+      "ranking_position": { "name": "Posición en Ranking" },
+      "ranking_total": { "name": "Total en Ranking" },
+      "ranking_min_consumption": { "name": "Mejor Consumo del Usuario" },
+      "ranking_avg_consumption": { "name": "Consumo Promedio del Usuario" },
+      "next_service_km": { "name": "Próximo Servicio en km" },
+      "next_service_note": { "name": "Nota Próximo Servicio" },
+      "next_service_date": { "name": "Fecha Próximo Servicio" },
+      "km_to_next_service": { "name": "Kilómetros para Próximo Servicio" },
+      "fuel_level_estimate": { "name": "Nivel Estimado de Combustible" },
+      "range_estimate": { "name": "Autonomía Estimada" },
+      "consumption_trend": { "name": "Tendencia de Consumo" },
+      "consumption_consistency": { "name": "Consistencia de Consumo" },
+      "avg_refuel_quantity": { "name": "Cantidad Promedio de Repostaje" },
+      "avg_days_between_refuels": { "name": "Días Promedio entre Repostajes" },
+      "price_variability": { "name": "Variabilidad Precio Combustible" },
+      "eco_driving_index": { "name": "Índice de Conducción Ecológica" }
+    }
+  }
+}

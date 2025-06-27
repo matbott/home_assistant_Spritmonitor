@@ -241,15 +241,11 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         if not self.coordinator.data or not self.coordinator.data.get('vehicle'):
             return None
         vehicle = self.coordinator.data['vehicle']
-        
-        # Para que el código sea más limpio, creamos el nombre completo una sola vez
-        vehicle_full_name = f"{vehicle.get('make', '')} {vehicle.get('model', '')}".strip() or "Spritmonitor Vehicle"
-        
         return DeviceInfo(
             identifiers={(DOMAIN, str(vehicle.get('id', 'unknown')))},
-            name=vehicle_full_name,
-            manufacturer="matbott",
-            model=vehicle_full_name,
+            name=f"{vehicle.get('make', '')} {vehicle.get('model', '')}".strip() or "Spritmonitor Vehicle",
+            manufacturer=vehicle.get('make', 'Unknown'),
+            model=vehicle.get('model', 'Unknown'),
         )
 
     @property

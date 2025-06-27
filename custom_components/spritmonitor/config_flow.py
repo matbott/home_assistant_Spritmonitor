@@ -20,6 +20,7 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Spritmonitor."""
     
     VERSION = 1
+    _attr_translation_domain = DOMAIN
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
@@ -27,7 +28,10 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         
         if user_input is not None:
             try:
+                # Se utiliza el session de hass para las pruebas
+                session = async_get_clientsession(self.hass)
                 vehicle_info = await self._get_vehicle_info(
+                    session,
                     user_input[CONF_VEHICLE_ID],
                     user_input[CONF_APP_TOKEN],
                     user_input[CONF_BEARER_TOKEN]
@@ -42,43 +46,37 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     return self.async_create_entry(title=title, data=user_input)
                 else:
                     errors["base"] = "invalid_auth"
+            except aiohttp.ClientError:
+                errors["base"] = "cannot_connect"
             except Exception as e:
                 _LOGGER.error("Error during configuration: %s", e)
                 errors["base"] = "cannot_connect"
 
+        # El data_schema ahora es mucho más limpio.
+        # Home Assistant usará strings.json para obtener los títulos y descripciones.
+        data_schema = vol.Schema({
+            vol.Required(CONF_VEHICLE_ID): int,
+            vol.Required(CONF_APP_TOKEN, default=DEFAULT_APP_TOKEN): str,
+            vol.Required(CONF_BEARER_TOKEN): str,
+            vol.Required(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): vol.All(
+                vol.Coerce(int), vol.Range(min=1, max=24)
+            )
+        })
+
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({
-                vol.Required(CONF_VEHICLE_ID): int,
-                vol.Required(CONF_APP_TOKEN, default=DEFAULT_APP_TOKEN): str,
-                vol.Required(CONF_BEARER_TOKEN): str,
-                vol.Required(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): vol.All(
-                    vol.Coerce(int), vol.Range(min=1, max=24)
-                )
-            }),
-            errors=errors,
-            description_placeholders={
-                "vehicle_id_description": "El ID numérico de tu vehículo en Spritmonitor",
-                "app_token_description": "Token de aplicación proporcionado por Spritmonitor",
-                "bearer_token_description": "Token de autorización en formato: Bearer tu_token_aquí",
-                "update_interval_description": "Intervalo de actualización en horas (1-24)"
-            }
+            data_schema=data_schema,
+            errors=errors
         )
 
-    async def _get_vehicle_info(self, vehicle_id: int, app_token: str, bearer_token: str) -> dict | None:
+    async def _get_vehicle_info(self, session: aiohttp.ClientSession, vehicle_id: int, app_token: str, bearer_token: str) -> dict | None:
         """Test credentials and get vehicle info."""
-        try:
-            session = async_get_clientsession(self.hass)
-            headers = {
-                "Application-Id": app_token,
-                "Authorization": bearer_token
-            }
-            async with session.get(API_VEHICLES_URL, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                if response.status == 200:
-                    vehicles = await response.json()
-                    return next((v for v in vehicles if v["id"] == vehicle_id), None)
-                else:
-                    return None
-        except Exception as e:
-            _LOGGER.error("Error testing credentials: %s", e)
-            return None
+        # La función ahora recibe la sesión aiohttp
+        headers = {
+            "Application-Id": app_token,
+            "Authorization": bearer_token
+        }
+        async with session.get(API_VEHICLES_URL, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as response:
+            response.raise_for_status() # Lanza una excepción para errores HTTP
+            vehicles = await response.json()
+            return next((v for v in vehicles if v["id"] == vehicle_id), None)
