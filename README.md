@@ -45,6 +45,10 @@ NOTE: Application ID = `095369dede84c55797c22d4854ca6efe`
 
 NOTE: Token format = `Bearer xxxxxxxxxxxxxxxxxx`
 
+![image](https://github.com/user-attachments/assets/3cb3da84-cb36-4d55-9708-b61d5829ae14)
+
+![image](https://github.com/user-attachments/assets/516ed019-76b8-44c3-86b4-9cd3a6d14fae)
+
 ## Entities
 
 All sensors will be grouped under a device named after your vehicle (e.g., `Ford Focus`).
