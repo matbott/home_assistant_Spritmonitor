@@ -160,8 +160,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     
     # La lista de sensores está perfecta, no necesita cambios.
-    # Reemplaza tu lista de sensores con esta versión corregida
-# Bloque completo de sensores con la Opción 1 aplicada (Priorizando Estadísticas)
     sensors = [
         # === VEHICLE INFORMATION ===
         SpritmonitorSensor(coordinator, "brand_model", lambda d: f"{d['vehicle'].get('make', '')} {d['vehicle'].get('model', '')}" if d.get('vehicle') else None, icon="mdi:car"),
@@ -173,8 +171,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
         # === LAST REFUELING ===
         SpritmonitorSensor(coordinator, "last_refuel_date", lambda d: d['last_refueling'].get('date', '') if d.get('last_refueling') else None, icon="mdi:calendar"),
-        SpritmonitorSensor(coordinator, "last_refuel_quantity", lambda d: float(d['last_refueling'].get('quantity', 0)) if d.get('last_refueling') else None, unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station"), # <-- AJUSTADO
-        SpritmonitorSensor(coordinator, "last_refuel_cost", lambda d: format_cost_in_pesos(d['last_refueling'].get('cost', 0)) if d.get('last_refueling') else None, unit="UYU", device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"), # <-- AJUSTADO
+        SpritmonitorSensor(coordinator, "last_refuel_quantity", lambda d: float(d['last_refueling'].get('quantity', 0)) if d.get('last_refueling') else None, unit=UnitOfVolume.LITERS, device_class=SensorDeviceClass.VOLUME, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station"),
+        SpritmonitorSensor(coordinator, "last_refuel_cost", lambda d: format_cost_in_pesos(d['last_refueling'].get('cost', 0)) if d.get('last_refueling') else None, unit="UYU", device_class=SensorDeviceClass.MONETARY, state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
         SpritmonitorSensor(coordinator, "last_refuel_price_per_liter", lambda d: calculate_price_per_liter(d['last_refueling'].get('cost'), d['last_refueling'].get('quantity')) if d.get('last_refueling') else None, unit="UYU/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
         SpritmonitorSensor(coordinator, "last_refuel_odometer", lambda d: float(d['last_refueling'].get('odometer', 0)) if d.get('last_refueling') else None, unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.TOTAL, icon="mdi:speedometer"),
         SpritmonitorSensor(coordinator, "last_refuel_trip", lambda d: float(d['last_refueling'].get('trip', 0)) if d.get('last_refueling') else None, unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT, icon="mdi:map-marker-distance"),
@@ -196,13 +194,13 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(coordinator, "km_to_next_service", lambda d: calculate_km_to_service(d), unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT, icon="mdi:car-wrench"),
 
         # === CALCULATED STATISTICS ===
-        SpritmonitorSensor(coordinator, "fuel_level_estimate", lambda d: calculate_fuel_level_estimate(d), unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gauge"), # <-- AJUSTADO
+        SpritmonitorSensor(coordinator, "fuel_level_estimate", lambda d: calculate_fuel_level_estimate(d), unit=UnitOfVolume.LITERS, device_class=SensorDeviceClass.VOLUME, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gauge"),
         SpritmonitorSensor(coordinator, "range_estimate", lambda d: calculate_range_estimate(d), unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station-off"),
 
         # === TREND ANALYSIS (based on last 5 refuelings) ===
         SpritmonitorSensor(coordinator, "consumption_trend", lambda d: calculate_consumption_trend(d.get('refuelings', [])), icon="mdi:trending-up"),
         SpritmonitorSensor(coordinator, "consumption_consistency", lambda d: calculate_consumption_consistency(d.get('refuelings', [])), unit="km/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:chart-bell-curve"),
-        SpritmonitorSensor(coordinator, "avg_refuel_quantity", lambda d: calculate_avg_refuel_quantity(d.get('refuelings', [])), unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station-outline"), # <-- AJUSTADO
+        SpritmonitorSensor(coordinator, "avg_refuel_quantity", lambda d: calculate_avg_refuel_quantity(d.get('refuelings', [])), unit=UnitOfVolume.LITERS, device_class=SensorDeviceClass.VOLUME, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station-outline"),
         SpritmonitorSensor(coordinator, "avg_days_between_refuels", lambda d: calculate_avg_days_between_refuels(d.get('refuelings', [])), unit="days", state_class=SensorStateClass.MEASUREMENT, icon="mdi:calendar-range"),
         SpritmonitorSensor(coordinator, "price_variability", lambda d: calculate_price_variability(d.get('refuelings', [])), unit="UYU/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:chart-line-variant"),
         SpritmonitorSensor(coordinator, "eco_driving_index", lambda d: calculate_eco_driving_index(d.get('refuelings', []), d.get('vehicle', {}).get('consumption')), unit="/10", state_class=SensorStateClass.MEASUREMENT, icon="mdi:leaf"),
