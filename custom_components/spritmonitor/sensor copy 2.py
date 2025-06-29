@@ -3,9 +3,12 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.const import UnitOfVolume, UnitOfLength
 from datetime import datetime, date
-from .const import DOMAIN, MANUFACTURER
+from .const import DOMAIN
 
 # --- FUNCIONES HELPER (SIN CAMBIOS) ---
+# Todas tus funciones de cálculo permanecen exactamente iguales.
+# Son una excelente manera de organizar la lógica.
+
 def calculate_price_per_liter(cost, quantity):
     """Calculate price per liter."""
     if not cost or not quantity or quantity == 0:
@@ -156,6 +159,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Spritmonitor sensors based on a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     
+    # La lista de sensores está perfecta, no necesita cambios.
+    # Reemplaza tu lista de sensores con esta versión corregida
+# Bloque completo de sensores con la Opción 1 aplicada (Priorizando Estadísticas)
     sensors = [
         # === VEHICLE INFORMATION ===
         SpritmonitorSensor(coordinator, "brand_model", lambda d: f"{d['vehicle'].get('make', '')} {d['vehicle'].get('model', '')}" if d.get('vehicle') else None, icon="mdi:car"),
@@ -167,8 +173,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
         # === LAST REFUELING ===
         SpritmonitorSensor(coordinator, "last_refuel_date", lambda d: d['last_refueling'].get('date', '') if d.get('last_refueling') else None, icon="mdi:calendar"),
-        SpritmonitorSensor(coordinator, "last_refuel_quantity", lambda d: float(d['last_refueling'].get('quantity', 0)) if d.get('last_refueling') else None, unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station"),
-        SpritmonitorSensor(coordinator, "last_refuel_cost", lambda d: format_cost_in_pesos(d['last_refueling'].get('cost', 0)) if d.get('last_refueling') else None, unit="UYU", device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
+        SpritmonitorSensor(coordinator, "last_refuel_quantity", lambda d: float(d['last_refueling'].get('quantity', 0)) if d.get('last_refueling') else None, unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station"), # <-- AJUSTADO
+        SpritmonitorSensor(coordinator, "last_refuel_cost", lambda d: format_cost_in_pesos(d['last_refueling'].get('cost', 0)) if d.get('last_refueling') else None, unit="UYU", device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"), # <-- AJUSTADO
         SpritmonitorSensor(coordinator, "last_refuel_price_per_liter", lambda d: calculate_price_per_liter(d['last_refueling'].get('cost'), d['last_refueling'].get('quantity')) if d.get('last_refueling') else None, unit="UYU/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
         SpritmonitorSensor(coordinator, "last_refuel_odometer", lambda d: float(d['last_refueling'].get('odometer', 0)) if d.get('last_refueling') else None, unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.TOTAL, icon="mdi:speedometer"),
         SpritmonitorSensor(coordinator, "last_refuel_trip", lambda d: float(d['last_refueling'].get('trip', 0)) if d.get('last_refueling') else None, unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT, icon="mdi:map-marker-distance"),
@@ -190,13 +196,13 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(coordinator, "km_to_next_service", lambda d: calculate_km_to_service(d), unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT, icon="mdi:car-wrench"),
 
         # === CALCULATED STATISTICS ===
-        SpritmonitorSensor(coordinator, "fuel_level_estimate", lambda d: calculate_fuel_level_estimate(d), unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gauge"),
+        SpritmonitorSensor(coordinator, "fuel_level_estimate", lambda d: calculate_fuel_level_estimate(d), unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gauge"), # <-- AJUSTADO
         SpritmonitorSensor(coordinator, "range_estimate", lambda d: calculate_range_estimate(d), unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station-off"),
 
         # === TREND ANALYSIS (based on last 5 refuelings) ===
         SpritmonitorSensor(coordinator, "consumption_trend", lambda d: calculate_consumption_trend(d.get('refuelings', [])), icon="mdi:trending-up"),
         SpritmonitorSensor(coordinator, "consumption_consistency", lambda d: calculate_consumption_consistency(d.get('refuelings', [])), unit="km/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:chart-bell-curve"),
-        SpritmonitorSensor(coordinator, "avg_refuel_quantity", lambda d: calculate_avg_refuel_quantity(d.get('refuelings', [])), unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station-outline"),
+        SpritmonitorSensor(coordinator, "avg_refuel_quantity", lambda d: calculate_avg_refuel_quantity(d.get('refuelings', [])), unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station-outline"), # <-- AJUSTADO
         SpritmonitorSensor(coordinator, "avg_days_between_refuels", lambda d: calculate_avg_days_between_refuels(d.get('refuelings', [])), unit="days", state_class=SensorStateClass.MEASUREMENT, icon="mdi:calendar-range"),
         SpritmonitorSensor(coordinator, "price_variability", lambda d: calculate_price_variability(d.get('refuelings', [])), unit="UYU/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:chart-line-variant"),
         SpritmonitorSensor(coordinator, "eco_driving_index", lambda d: calculate_eco_driving_index(d.get('refuelings', []), d.get('vehicle', {}).get('consumption')), unit="/10", state_class=SensorStateClass.MEASUREMENT, icon="mdi:leaf"),
@@ -207,6 +213,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Spritmonitor sensor."""
 
+    # Esta línea es clave. Le dice a HA que la entidad tiene un nombre
+    # y que debe usar el sistema de traducción.
     _attr_has_entity_name = True
 
     def __init__(self, coordinator, sensor_id, value_fn, unit=None, device_class=None, state_class=None, icon=None):
@@ -214,21 +222,20 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._value_fn = value_fn
         
+        # Asignamos los atributos directamente usando la convención _attr_
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
         self._attr_state_class = state_class
         self._attr_icon = icon
         
+        # Construimos el ID único de la entidad
         vehicle_id = coordinator.data.get('vehicle', {}).get('id', 'unknown') if coordinator.data else 'unknown'
         self._attr_unique_id = f"spritmonitor_{vehicle_id}_{sensor_id}"
         
+        # Asignamos la clave de traducción. Esta es la forma correcta y final.
+        # HA usará esta clave (ej: "last_refuel_trip") para generar el entity_id
+        # y para buscar el nombre amigable en los archivos de traducción.
         self._attr_translation_key = sensor_id
-
-        # --- ¡AQUÍ ESTÁ EL CAMBIO! ---
-        # Si el sensor que estamos creando es el de "brand_model",
-        # usamos tu descubrimiento para construir la URL de la imagen.
-        if sensor_id == "brand_model":
-            self._attr_entity_picture = f"https://www.spritmonitor.de/pics/vehicle/{vehicle_id}.jpg"
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -237,12 +244,13 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
             return None
         vehicle = self.coordinator.data['vehicle']
         
+        # Para que el código sea más limpio, creamos el nombre completo una sola vez
         vehicle_full_name = f"{vehicle.get('make', '')} {vehicle.get('model', '')}".strip() or "Spritmonitor Vehicle"
         
         return DeviceInfo(
             identifiers={(DOMAIN, str(vehicle.get('id', 'unknown')))},
             name=vehicle_full_name,
-            manufacturer=MANUFACTURER,
+            manufacturer="matbott",
             model=vehicle_full_name,
         )
 
@@ -260,3 +268,4 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
     def available(self) -> bool:
         """Return if entity is available."""
         return self.coordinator.last_update_success and self.coordinator.data is not None
+

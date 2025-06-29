@@ -2,6 +2,7 @@
 
 # Domain for the integration
 DOMAIN = "spritmonitor"
+MANUFACTURER = "matbott & 🤖"
 
 # Default values
 DEFAULT_APP_TOKEN = "095369dede84c55797c22d4854ca6efe"
