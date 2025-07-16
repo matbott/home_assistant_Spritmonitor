@@ -1,9 +1,9 @@
 {
-  "dependencies": [],
   "domain": "spritmonitor",
   "name": "Spritmonitor",
   "codeowners": ["@matbott"],
   "config_flow": true,
+  "dependencies": [],
   "documentation": "https://github.com/matbott/home_assistant_Spritmonitor",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/matbott/home_assistant_Spritmonitor/issues",
