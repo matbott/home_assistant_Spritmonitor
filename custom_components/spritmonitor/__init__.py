@@ -12,6 +12,7 @@ from .const import (
     API_VEHICLES_URL,
     API_REMINDERS_URL,
     API_FUELINGS_URL_TPL,
+    API_CURRENCIES_URL,
     CONF_VEHICLE_ID,
     CONF_APP_TOKEN,
     CONF_BEARER_TOKEN,
@@ -64,12 +65,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             except Exception as e:
                 _LOGGER.debug("Could not fetch reminders: %s", e)
 
+            # Fetch currencies
+            currencies = {}
+            try:
+                async with session.get(API_CURRENCIES_URL, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                    if response.status == 200:
+                        currencies_data = await response.json()
+                        # Convert list to dict for easier lookup
+                        currencies = {c.get('id'): c for c in currencies_data if c.get('id')}
+            except Exception as e:
+                _LOGGER.debug("Could not fetch currencies: %s", e)
+
             return {
                 "vehicle": vehicle_info,
                 "last_refueling": last_refueling,
                 "previous_refueling": previous_refueling,
                 "refuelings": refuelings,
                 "reminders": reminders,
+                "currencies": currencies,
             }
         except aiohttp.ClientError as e:
             raise UpdateFailed(f"Connection error with Spritmonitor: {e}")

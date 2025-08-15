@@ -6,6 +6,44 @@ from datetime import datetime, date
 from .const import DOMAIN, MANUFACTURER
 
 # --- FUNCIONES HELPER (SIN CAMBIOS) ---
+def get_refueling_currency_id(refueling):
+    """Get currency ID from refueling object, trying different possible field names."""
+    if not refueling:
+        return None
+    
+    # Try different possible field names for currency
+    return (refueling.get('currency') or 
+            refueling.get('currency_id') or 
+            refueling.get('currencyid') or 
+            refueling.get('currency_code'))
+
+def get_currency_symbol(data, refueling_currency_id):
+    """Get currency symbol from currencies data."""
+    if not data.get('currencies'):
+        return "UYU"  # Default fallback if no currencies available
+    
+    # Try to get currency_id from refueling
+    if refueling_currency_id is not None:
+        currency = data['currencies'].get(refueling_currency_id)
+        if currency:
+            # API returns 'name' field with currency code like 'EUR', 'USD', etc.
+            return currency.get('name', 'UYU')
+    
+    # Fallback: try to get currency from vehicle level
+    vehicle = data.get('vehicle', {})
+    vehicle_currency_id = vehicle.get('currency') or vehicle.get('currency_id')
+    if vehicle_currency_id is not None:
+        currency = data['currencies'].get(vehicle_currency_id)
+        if currency:
+            return currency.get('name', 'UYU')
+    
+    # Final fallback: try first available currency or default
+    if data['currencies']:
+        first_currency = next(iter(data['currencies'].values()))
+        return first_currency.get('name', 'UYU')
+    
+    return "UYU"
+
 def calculate_price_per_liter(cost, quantity):
     """Calculate price per liter."""
     if not cost or not quantity or quantity == 0:
@@ -168,14 +206,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         # === LAST REFUELING ===
         SpritmonitorSensor(coordinator, "last_refuel_date", lambda d: d['last_refueling'].get('date', '') if d.get('last_refueling') else None, icon="mdi:calendar"),
         SpritmonitorSensor(coordinator, "last_refuel_quantity", lambda d: float(d['last_refueling'].get('quantity', 0)) if d.get('last_refueling') else None, unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station"),
-        SpritmonitorSensor(coordinator, "last_refuel_cost", lambda d: format_cost_in_pesos(d['last_refueling'].get('cost', 0)) if d.get('last_refueling') else None, unit="UYU", device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
-        SpritmonitorSensor(coordinator, "last_refuel_price_per_liter", lambda d: calculate_price_per_liter(d['last_refueling'].get('cost'), d['last_refueling'].get('quantity')) if d.get('last_refueling') else None, unit="UYU/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
+        SpritmonitorCostSensor(coordinator, "last_refuel_cost", lambda d: format_cost_in_pesos(d['last_refueling'].get('cost', 0)) if d.get('last_refueling') else None, lambda d: get_currency_symbol(d, get_refueling_currency_id(d.get('last_refueling'))), device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
+        SpritmonitorCostSensor(coordinator, "last_refuel_price_per_liter", lambda d: calculate_price_per_liter(d['last_refueling'].get('cost'), d['last_refueling'].get('quantity')) if d.get('last_refueling') else None, lambda d: f"{get_currency_symbol(d, get_refueling_currency_id(d.get('last_refueling')))}/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
         SpritmonitorSensor(coordinator, "last_refuel_odometer", lambda d: float(d['last_refueling'].get('odometer', 0)) if d.get('last_refueling') else None, unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.TOTAL, icon="mdi:speedometer"),
         SpritmonitorSensor(coordinator, "last_refuel_trip", lambda d: float(d['last_refueling'].get('trip', 0)) if d.get('last_refueling') else None, unit=UnitOfLength.KILOMETERS, device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT, icon="mdi:map-marker-distance"),
         SpritmonitorSensor(coordinator, "last_refuel_consumption", lambda d: float(d['last_refueling'].get('consumption', 0)) if d.get('last_refueling') else None, unit="km/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:car-speed-limiter"),
         SpritmonitorSensor(coordinator, "last_refuel_type", lambda d: d['last_refueling'].get('type', 'Unknown') if d.get('last_refueling') else None, icon="mdi:gas-station"),
         SpritmonitorSensor(coordinator, "last_refuel_location", lambda d: d['last_refueling'].get('location', 'Unknown') if d.get('last_refueling') else None, icon="mdi:map-marker"),
         SpritmonitorSensor(coordinator, "last_refuel_country", lambda d: d['last_refueling'].get('country', 'Unknown') if d.get('last_refueling') else None, icon="mdi:flag"),
+        SpritmonitorSensor(coordinator, "last_refuel_currency", lambda d: get_currency_symbol(d, get_refueling_currency_id(d.get('last_refueling'))), icon="mdi:currency-usd"),
+        SpritmonitorCostSensor(coordinator, "last_refuel_cost_converted", lambda d: format_cost_in_pesos(d['last_refueling'].get('cost_converted', 0)) if d.get('last_refueling') else None, lambda d: get_currency_symbol(d, get_refueling_currency_id(d.get('last_refueling'))), device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:currency-usd"),
+        SpritmonitorSensor(coordinator, "last_refuel_fuel_sort_id", lambda d: d['last_refueling'].get('fuelsortid', 'Unknown') if d.get('last_refueling') else None, icon="mdi:gas-station"),
 
         # === RANKING STATISTICS ===
         SpritmonitorSensor(coordinator, "ranking_position", lambda d: d['vehicle']['rankingInfo'].get('rank', None) if d.get('vehicle') and d['vehicle'].get('rankingInfo') else None, icon="mdi:trophy"),
@@ -198,7 +239,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         SpritmonitorSensor(coordinator, "consumption_consistency", lambda d: calculate_consumption_consistency(d.get('refuelings', [])), unit="km/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:chart-bell-curve"),
         SpritmonitorSensor(coordinator, "avg_refuel_quantity", lambda d: calculate_avg_refuel_quantity(d.get('refuelings', [])), unit=UnitOfVolume.LITERS, device_class=None, state_class=SensorStateClass.MEASUREMENT, icon="mdi:gas-station-outline"),
         SpritmonitorSensor(coordinator, "avg_days_between_refuels", lambda d: calculate_avg_days_between_refuels(d.get('refuelings', [])), unit="days", state_class=SensorStateClass.MEASUREMENT, icon="mdi:calendar-range"),
-        SpritmonitorSensor(coordinator, "price_variability", lambda d: calculate_price_variability(d.get('refuelings', [])), unit="UYU/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:chart-line-variant"),
+        SpritmonitorCostSensor(coordinator, "price_variability", lambda d: calculate_price_variability(d.get('refuelings', [])), lambda d: f"{get_currency_symbol(d, get_refueling_currency_id(d.get('last_refueling')))}/L", state_class=SensorStateClass.MEASUREMENT, icon="mdi:chart-line-variant"),
         SpritmonitorSensor(coordinator, "eco_driving_index", lambda d: calculate_eco_driving_index(d.get('refuelings', []), d.get('vehicle', {}).get('consumption')), unit="/10", state_class=SensorStateClass.MEASUREMENT, icon="mdi:leaf"),
     ]
     async_add_entities(sensors)
@@ -255,6 +296,68 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
             return self._value_fn(self.coordinator.data)
         except (KeyError, TypeError, AttributeError, ValueError, IndexError):
             return None
+
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        return self.coordinator.last_update_success and self.coordinator.data is not None
+
+
+class SpritmonitorCostSensor(CoordinatorEntity, SensorEntity):
+    """Representation of a Spritmonitor cost sensor with dynamic currency unit."""
+
+    _attr_has_entity_name = True
+
+    def __init__(self, coordinator, sensor_id, value_fn, unit_fn, device_class=None, state_class=None, icon=None):
+        """Initialize the cost sensor."""
+        super().__init__(coordinator)
+        self._value_fn = value_fn
+        self._unit_fn = unit_fn
+        
+        self._attr_device_class = device_class
+        self._attr_state_class = state_class
+        self._attr_icon = icon
+        
+        vehicle_id = coordinator.data.get('vehicle', {}).get('id', 'unknown') if coordinator.data else 'unknown'
+        self._attr_unique_id = f"spritmonitor_{vehicle_id}_{sensor_id}"
+        
+        self._attr_translation_key = sensor_id
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device information about this sensor."""
+        if not self.coordinator.data or not self.coordinator.data.get('vehicle'):
+            return None
+        vehicle = self.coordinator.data['vehicle']
+        
+        vehicle_full_name = f"{vehicle.get('make', '')} {vehicle.get('model', '')}".strip() or "Spritmonitor Vehicle"
+        
+        return DeviceInfo(
+            identifiers={(DOMAIN, str(vehicle.get('id', 'unknown')))},
+            name=vehicle_full_name,
+            manufacturer=MANUFACTURER,
+            model=vehicle_full_name,
+        )
+
+    @property
+    def native_value(self):
+        """Return the native value of the sensor."""
+        try:
+            if not self.coordinator.data:
+                return None
+            return self._value_fn(self.coordinator.data)
+        except (KeyError, TypeError, AttributeError, ValueError, IndexError):
+            return None
+
+    @property
+    def native_unit_of_measurement(self):
+        """Return the unit of measurement for this sensor."""
+        try:
+            if not self.coordinator.data:
+                return "UYU"  # Default fallback
+            return self._unit_fn(self.coordinator.data)
+        except (KeyError, TypeError, AttributeError, ValueError, IndexError):
+            return "UYU"  # Default fallback
 
     @property
     def available(self) -> bool:
