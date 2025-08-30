@@ -13,6 +13,8 @@ API_BASE_URL = "https://api.spritmonitor.de/v1"
 API_VEHICLES_URL = f"{API_BASE_URL}/vehicles.json"
 API_REMINDERS_URL = f"{API_BASE_URL}/reminders.json"
 API_FUELINGS_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/fuelings.json"
+API_CURRENCIES_URL = f"{API_BASE_URL}/currencies.json"
+API_QUANTITY_UNITS_URL = f"{API_BASE_URL}/quantityunits.json"
 
 # Configuration keys used in config_flow and __init__
 CONF_VEHICLE_ID = "vehicle_id"
