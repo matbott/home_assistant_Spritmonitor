@@ -1,12 +1,13 @@
 {
   "domain": "spritmonitor",
   "name": "Spritmonitor",
-  "codeowners": ["@matbott"],
+  "version": "3.0",
   "config_flow": true,
-  "dependencies": [],
   "documentation": "https://github.com/matbott/home_assistant_Spritmonitor",
-  "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/matbott/home_assistant_Spritmonitor/issues",
   "requirements": [],
-  "version": "2.0.3"
+  "dependencies": [],
+  "authors": ["matbott"],
+  "codeowners": ["@matbott"],
+  "iot_class": "cloud_polling"
 }

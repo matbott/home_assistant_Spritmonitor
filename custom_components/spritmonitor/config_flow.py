@@ -1,8 +1,12 @@
+# Contenido para: config_flow.py
+
 from homeassistant import config_entries
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.const import UnitOfVolume, UnitOfLength
 import voluptuous as vol
 import aiohttp
 import logging
+
 from .const import (
     DOMAIN,
     DEFAULT_APP_TOKEN,
@@ -12,29 +16,28 @@ from .const import (
     CONF_APP_TOKEN,
     CONF_BEARER_TOKEN,
     CONF_UPDATE_INTERVAL,
+    CONF_VEHICLE_TYPE,
+    CONF_CURRENCY,
+    CONF_DISTANCE_UNIT,
+    CONF_VOLUME_UNIT,
+    VEHICLE_TYPE_COMBUSTION,
+    VEHICLE_TYPE_ELECTRIC,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Spritmonitor."""
-    
     VERSION = 1
     _attr_translation_domain = DOMAIN
 
     async def async_step_user(self, user_input=None):
-        """Handle the initial step."""
         errors = {}
         
         if user_input is not None:
             try:
-                # Se utiliza el session de hass para las pruebas
                 session = async_get_clientsession(self.hass)
                 vehicle_info = await self._get_vehicle_info(
-                    session,
-                    user_input[CONF_VEHICLE_ID],
-                    user_input[CONF_APP_TOKEN],
-                    user_input[CONF_BEARER_TOKEN]
+                    session, user_input[CONF_VEHICLE_ID], user_input[CONF_APP_TOKEN], user_input[CONF_BEARER_TOKEN]
                 )
                 if vehicle_info:
                     make = vehicle_info.get("make", "")
@@ -52,31 +55,37 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Error during configuration: %s", e)
                 errors["base"] = "cannot_connect"
 
-        # El data_schema ahora es mucho más limpio.
-        # Home Assistant usará strings.json para obtener los títulos y descripciones.
+        # --- DATA_SCHEMA ACTUALIZADO PARA USAR TRADUCCIONES ---
         data_schema = vol.Schema({
             vol.Required(CONF_VEHICLE_ID): int,
             vol.Required(CONF_APP_TOKEN, default=DEFAULT_APP_TOKEN): str,
             vol.Required(CONF_BEARER_TOKEN): str,
+            
+            # Ahora las opciones son una lista de claves, no un diccionario.
+            # Home Assistant buscará las traducciones automáticamente.
+            vol.Required(CONF_VEHICLE_TYPE, default=VEHICLE_TYPE_COMBUSTION): vol.In([
+                VEHICLE_TYPE_COMBUSTION, VEHICLE_TYPE_ELECTRIC
+            ]),
+            vol.Required(CONF_CURRENCY, default="UYU"): str,
+            vol.Required(CONF_DISTANCE_UNIT, default=UnitOfLength.KILOMETERS): vol.In([
+                UnitOfLength.KILOMETERS, UnitOfLength.MILES
+            ]),
+            vol.Required(CONF_VOLUME_UNIT, default=UnitOfVolume.LITERS): vol.In([
+                UnitOfVolume.LITERS, UnitOfVolume.GALLONS
+            ]),
+            
             vol.Required(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): vol.All(
                 vol.Coerce(int), vol.Range(min=1, max=24)
             )
         })
 
         return self.async_show_form(
-            step_id="user",
-            data_schema=data_schema,
-            errors=errors
+            step_id="user", data_schema=data_schema, errors=errors
         )
 
     async def _get_vehicle_info(self, session: aiohttp.ClientSession, vehicle_id: int, app_token: str, bearer_token: str) -> dict | None:
-        """Test credentials and get vehicle info."""
-        # La función ahora recibe la sesión aiohttp
-        headers = {
-            "Application-Id": app_token,
-            "Authorization": bearer_token
-        }
+        headers = { "Application-Id": app_token, "Authorization": bearer_token }
         async with session.get(API_VEHICLES_URL, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as response:
-            response.raise_for_status() # Lanza una excepción para errores HTTP
+            response.raise_for_status()
             vehicles = await response.json()
             return next((v for v in vehicles if v["id"] == vehicle_id), None)

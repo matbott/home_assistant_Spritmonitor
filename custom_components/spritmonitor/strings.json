@@ -8,63 +8,63 @@
         "data": {
           "vehicle_id": "Vehicle ID",
           "app_token": "Application Token",
-          "bearer_token": "Bearer Token = Bearer 1234yyyxxxzzz...",
-          "update_interval": "Update interval (hours)"
+          "bearer_token": "Bearer Token",
+          "update_interval": "Update interval (hours)",
+          "vehicle_type": "Vehicle Type",
+          "currency": "Currency Symbol (e.g., $, €, UYU)",
+          "distance_unit": "Distance Unit",
+          "volume_unit": "Volume Unit (for combustion)"
         }
       }
     },
-    "error": {
-      "invalid_auth": "Invalid authentication. Please check the Vehicle ID, App Token, and Bearer Token.",
-      "cannot_connect": "Unable to connect to Spritmonitor. Please try again."
-    },
-    "abort": {
-      "already_configured": "This vehicle is already configured."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Spritmonitor Options",
-        "data": {
-          "update_interval": "Update interval (hours)"
-        }
-      }
-    }
+    "error": { "invalid_auth": "Invalid authentication.", "cannot_connect": "Unable to connect." },
+    "abort": { "already_configured": "This vehicle is already configured." }
   },
   "entity": {
     "sensor": {
       "brand_model": { "name": "Brand and Model" },
       "license_plate": { "name": "License Plate" },
-      "fuel_capacity": { "name": "Fuel Capacity" },
       "total_distance": { "name": "Total Distance Traveled" },
-      "total_fuel": { "name": "Total Fuel Consumed" },
-      "avg_consumption": { "name": "Average Consumption" },
-      "last_refuel_date": { "name": "Last Refuel Date" },
-      "last_refuel_quantity": { "name": "Last Refuel Quantity" },
-      "last_refuel_cost": { "name": "Last Refuel Cost" },
-      "last_refuel_price_per_liter": { "name": "Last Refuel Price per Liter" },
-      "last_refuel_odometer": { "name": "Last Refuel Odometer" },
-      "last_refuel_trip": { "name": "Last Refuel Trip Distance" },
-      "last_refuel_consumption": { "name": "Last Refuel Consumption" },
-      "last_refuel_type": { "name": "Last Refuel Fuel Type" },
-      "last_refuel_location": { "name": "Last Refuel Location" },
-      "last_refuel_country": { "name": "Last Refuel Country" },
+      "last_refuel_date": { "name": "Last Charge/Refuel Date" },
+      "last_refuel_odometer": { "name": "Last Charge/Refuel Odometer" },
+      "last_refuel_trip": { "name": "Last Trip Distance" },
+      "last_refuel_quantity": { "name": "Last Charge/Refuel Quantity" },
+      "last_refuel_cost": { "name": "Last Charge/Refuel Cost" },
+      "last_refuel_type": { "name": "Last Charge/Refuel Type" },
+      "last_refuel_location": { "name": "Last Charge/Refuel Location" },
+      "last_refuel_country": { "name": "Last Charge/Refuel Country" },
       "ranking_position": { "name": "Ranking Position" },
-      "ranking_total": { "name": "Ranking Total" },
-      "ranking_min_consumption": { "name": "User's Best Consumption" },
-      "ranking_avg_consumption": { "name": "User's Average Consumption" },
-      "next_service_km": { "name": "Next Service at km" },
+      "ranking_total": { "name": "Total in Ranking" },
+      "ranking_min_consumption": { "name": "Ranking's Best Consumption" },
+      "ranking_avg_consumption": { "name": "Ranking's Average Consumption" },
+      "next_service_km": { "name": "Next Service (km)" },
       "next_service_note": { "name": "Next Service Note" },
       "next_service_date": { "name": "Next Service Date" },
       "km_to_next_service": { "name": "Kilometers to Next Service" },
+      "fuel_capacity": { "name": "Fuel Capacity" },
+      "total_fuel": { "name": "Total Fuel Consumed" },
+      "avg_consumption": { "name": "Average Consumption" },
+      "last_refuel_price_per_liter": { "name": "Last Refuel Price/Liter" },
+      "last_refuel_consumption": { "name": "Last Refuel Consumption" },
       "fuel_level_estimate": { "name": "Estimated Fuel Level" },
       "range_estimate": { "name": "Estimated Range" },
+      "battery_capacity": { "name": "Battery Capacity" },
+      "total_energy_charged": { "name": "Total Energy Charged" },
+      "avg_energy_consumption": { "name": "Average Energy Consumption" },
+      "last_charge_price_per_kwh": { "name": "Last Charge Price/kWh" },
+      "last_charge_consumption": { "name": "Last Charge Consumption" },
+      "full_battery_range_estimate": { "name": "Full Battery Range Estimate" },
       "consumption_trend": { "name": "Consumption Trend" },
       "consumption_consistency": { "name": "Consumption Consistency" },
-      "avg_refuel_quantity": { "name": "Average Refuel Quantity" },
-      "avg_days_between_refuels": { "name": "Average Days Between Refuels" },
-      "price_variability": { "name": "Fuel Price Variability" },
+      "avg_refuel_quantity": { "name": "Average Charge/Refuel Quantity" },
+      "avg_days_between_refuels": { "name": "Average Days Between Charges/Refuels" },
+      "price_variability": { "name": "Price Variability" },
       "eco_driving_index": { "name": "Eco Driving Index" }
     }
+  },
+  "selector": {
+    "vehicle_type": { "options": { "combustion": "Combustion", "electric": "Electric" } },
+    "distance_unit": { "options": { "km": "Kilometers", "mi": "Miles" } },
+    "volume_unit": { "options": { "L": "Liters", "gal": "Gallons" } }
   }
 }

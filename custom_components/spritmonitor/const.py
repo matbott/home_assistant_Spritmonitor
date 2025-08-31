@@ -1,3 +1,5 @@
+# Contenido para: const.py
+
 """Constants for the Spritmonitor integration."""
 
 # Domain for the integration
@@ -13,11 +15,19 @@ API_BASE_URL = "https://api.spritmonitor.de/v1"
 API_VEHICLES_URL = f"{API_BASE_URL}/vehicles.json"
 API_REMINDERS_URL = f"{API_BASE_URL}/reminders.json"
 API_FUELINGS_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/fuelings.json"
-API_CURRENCIES_URL = f"{API_BASE_URL}/currencies.json"
-API_QUANTITY_UNITS_URL = f"{API_BASE_URL}/quantityunits.json"
 
 # Configuration keys used in config_flow and __init__
 CONF_VEHICLE_ID = "vehicle_id"
 CONF_APP_TOKEN = "app_token"
 CONF_BEARER_TOKEN = "bearer_token"
 CONF_UPDATE_INTERVAL = "update_interval"
+
+# --- NUEVAS CONSTANTES ---
+CONF_VEHICLE_TYPE = "vehicle_type"
+CONF_CURRENCY = "currency"
+CONF_DISTANCE_UNIT = "distance_unit"
+CONF_VOLUME_UNIT = "volume_unit"
+
+# Tipos de Vehículo
+VEHICLE_TYPE_COMBUSTION = "combustion"
+VEHICLE_TYPE_ELECTRIC = "electric"
