@@ -200,6 +200,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     async_add_entities(all_sensors)
 
+# Reemplaza la clase entera al final de tu sensor.py con esto:
+
 class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
     _attr_has_entity_name = True
 
@@ -207,28 +209,45 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self.sensor_id = sensor_id
         self._value_fn = value_fn
-        self._vehicle_id = self.coordinator.config_entry.data.get(CONF_VEHICLE_ID)
-        self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, str(self._vehicle_id))})
+        
+        # Atributos básicos de la entidad
         self._attr_native_unit_of_measurement = unit
         self._attr_device_class = device_class
         self._attr_state_class = state_class
-        self._attr_unique_id = f"spritmonitor_{self._vehicle_id}_{self.sensor_id}"
+        self._attr_unique_id = f"spritmonitor_{coordinator.config_entry.data.get(CONF_VEHICLE_ID)}_{self.sensor_id}"
         self._attr_translation_key = self.sensor_id
+
+        # Lógica de iconos y foto
         if self.sensor_id == "brand_model":
-            self._attr_entity_picture = f"https://www.spritmonitor.de/pics/vehicle/{self._vehicle_id}.jpg"
+            self._attr_entity_picture = f"https://www.spritmonitor.de/pics/vehicle/{coordinator.config_entry.data.get(CONF_VEHICLE_ID)}.jpg"
         else:
             self._attr_icon = self.get_icon()
 
     @property
     def device_info(self) -> DeviceInfo:
-        device_info = self._attr_device_info
+        """Devuelve la información del dispositivo de forma estática y fiable."""
+        vehicle_id = self.coordinator.config_entry.data.get(CONF_VEHICLE_ID)
+        
+        # Nombre por defecto que es estable
+        device_name = f"Spritmonitor {vehicle_id}"
+        model = None
+        
+        # Si tenemos datos, enriquecemos el nombre y el modelo
         if self.coordinator.data and self.coordinator.data.get('vehicle'):
             vehicle = self.coordinator.data['vehicle']
-            device_info["name"] = f"{vehicle.get('make', '')} {vehicle.get('model', '')}".strip() or f"Spritmonitor {self._vehicle_id}"
-            device_info["model"] = vehicle.get('model', '')
-            device_info["hw_version"] = str(vehicle.get('constructionYear', ''))
-            device_info["configuration_url"] = f"https://www.spritmonitor.de/en/detail/{self._vehicle_id}.html"
-        return device_info
+            make = vehicle.get('make', '')
+            model_name = vehicle.get('model', '')
+            if make and model_name:
+                device_name = f"{make} {model_name}"
+            model = model_name
+
+        return DeviceInfo(
+            identifiers={(DOMAIN, str(vehicle_id))},
+            name=device_name,
+            manufacturer=MANUFACTURER,
+            model=model,
+            configuration_url=f"https://www.spritmonitor.de/en/detail/{vehicle_id}.html"
+        )
 
     @property
     def native_value(self):
@@ -244,6 +263,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         return self.coordinator.last_update_success and self.coordinator.data is not None
 
     def get_icon(self):
+        """Devuelve el icono para el sensor."""
         icons = {
             "license_plate": "mdi:card-text", "total_distance": "mdi:speedometer", "last_refuel_date": "mdi:calendar", 
             "last_refuel_odometer": "mdi:speedometer", "last_refuel_trip": "mdi:map-marker-distance",
