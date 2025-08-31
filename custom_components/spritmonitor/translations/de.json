@@ -1,0 +1,70 @@
+{
+  "title": "Spritmonitor⛽",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Spritmonitor konfigurieren",
+        "description": "Gib die Anmeldeinformationen für dein Fahrzeug auf Spritmonitor ein.",
+        "data": {
+          "vehicle_id": "Fahrzeug-ID",
+          "app_token": "Anwendungs-Token",
+          "bearer_token": "Bearer-Token",
+          "update_interval": "Aktualisierungsintervall (Stunden)",
+          "vehicle_type": "Fahrzeugtyp",
+          "currency": "Währungssymbol (z.B.: $, €, UYU)",
+          "distance_unit": "Entfernungseinheit",
+          "volume_unit": "Volumeneinheit (für Verbrenner)"
+        }
+      }
+    },
+    "error": { "invalid_auth": "Authentifizierung fehlgeschlagen.", "cannot_connect": "Verbindung fehlgeschlagen." },
+    "abort": { "already_configured": "Das Fahrzeug ist bereits konfiguriert." }
+  },
+  "entity": {
+    "sensor": {
+      "brand_model": { "name": "Marke und Modell" },
+      "license_plate": { "name": "Kennzeichen" },
+      "total_distance": { "name": "Insgesamt zurückgelegte Strecke" },
+      "last_refuel_date": { "name": "Datum des letzten Lade-/Tankvorgangs" },
+      "last_refuel_odometer": { "name": "Kilometerstand des letzten Lade-/Tankvorgangs" },
+      "last_refuel_trip": { "name": "Letzte Distanz" },
+      "last_refuel_quantity": { "name": "Menge des letzten Lade-/Tankvorgangs" },
+      "last_refuel_cost": { "name": "Kosten des letzten Lade-/Tankvorgangs" },
+      "last_refuel_type": { "name": "Typ des letzten Lade-/Tankvorgangs" },
+      "last_refuel_location": { "name": "Ort des letzten Lade-/Tankvorgangs" },
+      "last_refuel_country": { "name": "Land des letzten Lade-/Tankvorgangs" },
+      "ranking_position": { "name": "Rang" },
+      "ranking_total": { "name": "Anzahl der Fahrzeuge in Rangliste" },
+      "ranking_min_consumption": { "name": "Bester Verbrauch in Rangliste" },
+      "ranking_avg_consumption": { "name": "Bester durchschnittlicher Verbrauch in Rangliste" },
+      "next_service_km": { "name": "Nächster Service (km)" },
+      "next_service_note": { "name": "Nächste Servicenotiz" },
+      "next_service_date": { "name": "Nächstes Servicedatum" },
+      "km_to_next_service": { "name": "Kilometer bis zum nächsten Service" },
+      "fuel_capacity": { "name": "Tankvolumen" },
+      "total_fuel": { "name": "Insgesamt verbrauchter Kraftstoff" },
+      "avg_consumption": { "name": "Durchschnittlicher Verbrauch" },
+      "last_refuel_price_per_liter": { "name": "Letzte Betankung Preis/Liter" },
+      "last_refuel_consumption": { "name": "Verbrauch beim letzten Tankvorgang" },
+      "fuel_level_estimate": { "name": "Geschätzter Füllstand" },
+      "range_estimate": { "name": "Geschätzte Reichweite" },
+      "battery_capacity": { "name": "Akkukapazität" },
+      "total_energy_charged": { "name": "Insgesamt geladene Energie" },
+      "avg_energy_consumption": { "name": "Durchschnittlicher Energieverbrauch" },
+      "last_charge_price_per_kwh": { "name": "Letzte Ladung Preis/kWh" },
+      "last_charge_consumption": { "name": "Verbrauch beim letzten Ladevorgang" },
+      "full_battery_range_estimate": { "name": "Geschätzte Reichweite bei vollem Akku" },
+      "consumption_trend": { "name": "Verbrauchstrend" },
+      "consumption_consistency": { "name": "Konsistenz des Verbrauchs" },
+      "avg_refuel_quantity": { "name": "Durchschnittliche Ladungs-/Betankungsmenge" },
+      "avg_days_between_refuels": { "name": "Durchschnittliche Tage zwischen Lade-/Tankvorgängen" },
+      "price_variability": { "name": "Preisschwankungen" },
+      "eco_driving_index": { "name": "Öko-Fahrindex" }
+    }
+  },
+  "selector": {
+    "vehicle_type": { "options": { "combustion": "Verbrenner", "electric": "Elektrisch" } },
+    "distance_unit": { "options": { "km": "Kilometer", "mi": "Meilen" } },
+    "volume_unit": { "options": { "L": "Liter", "gal": "Gallonen" } }
+  }
+}
