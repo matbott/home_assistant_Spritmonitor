@@ -8,8 +8,12 @@
         "data": {
           "vehicle_id": "ID Pojazdu",
           "app_token": "Token Aplikacji",
-          "bearer_token": "Token Bearer = Bearer 1234yyyxxxzzz...",
-          "update_interval": "Interwał aktualizacji (godziny)"
+          "bearer_token": "Token Bearer",
+          "update_interval": "Interwał aktualizacji (godziny)",
+          "vehicle_type": "Typ Pojazdu",
+          "currency": "Symbol Waluty (np. $, €, PLN)",
+          "distance_unit": "Jednostka Odległości",
+          "volume_unit": "Jednostka Objętości (dla spalania)"
         }
       }
     },
@@ -21,54 +25,68 @@
       "already_configured": "Ten pojazd jest już skonfigurowany."
     }
   },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Opcje Spritmonitor",
-        "data": {
-          "update_interval": "Interwał aktualizacji (godziny)"
-        }
-      }
-    }
-  },
   "entity": {
     "sensor": {
       "brand_model": { "name": "Marka i Model" },
       "license_plate": { "name": "Tablica Rejestracyjna" },
-      "fuel_capacity": { "name": "Pojemność Zbiornika" },
       "total_distance": { "name": "Całkowity Dystans" },
-      "total_fuel": { "name": "Całkowite Zużycie Paliwa" },
-      "avg_consumption": { "name": "Średnie Spalanie" },
-      "last_refuel_date": { "name": "Data Ostatniego Tankowania" },
-      "last_refuel_quantity": { "name": "Ilość Ostatniego Tankowania" },
-      "last_refuel_cost": { "name": "Koszt Ostatniego Tankowania" },
-      "last_refuel_price_per_liter": { "name": "Cena za Litr Ostatniego Tankowania" },
-      "last_refuel_odometer": { "name": "Licznik Ostatniego Tankowania" },
-      "last_refuel_trip": { "name": "Dystans od Ostatniego Tankowania" },
-      "last_refuel_consumption": { "name": "Spalanie Ostatniego Tankowania" },
-      "last_refuel_type": { "name": "Typ Paliwa Ostatniego Tankowania" },
-      "last_refuel_location": { "name": "Lokalizacja Ostatniego Tankowania" },
-      "last_refuel_country": { "name": "Kraj Ostatniego Tankowania" },
-      "last_refuel_currency": { "name": "Waluta Ostatniego Tankowania" },
-      "last_refuel_cost_converted": { "name": "Koszt Ostatniego Tankowania (Przeliczony)" },
-      "last_refuel_fuel_sort_id": { "name": "ID Sortowania Paliwa Ostatniego Tankowania" },
-      "last_refuel_quantity_unit_id": { "name": "ID Jednostki Ilości Ostatniego Tankowania" },
+      "last_refuel_date": { "name": "Data Ostatniego Ładowania/Tankowania" },
+      "last_refuel_odometer": { "name": "Licznik Ostatniego Ładowania/Tankowania" },
+      "last_refuel_trip": { "name": "Dystans Ostatniej Podróży" },
+      "last_refuel_cost": { "name": "Koszt Ostatniego Ładowania/Tankowania" },
+      "last_refuel_type": { "name": "Typ Ostatniego Ładowania/Tankowania" },
+      "last_refuel_location": { "name": "Lokalizacja Ostatniego Ładowania/Tankowania" },
+      "last_refuel_country": { "name": "Kraj Ostatniego Ładowania/Tankowania" },
       "ranking_position": { "name": "Pozycja w Rankingu" },
       "ranking_total": { "name": "Całkowity Ranking" },
-      "ranking_min_consumption": { "name": "Najlepsze Spalanie Użytkownika" },
-      "ranking_avg_consumption": { "name": "Średnie Spalanie Użytkownika" },
-      "next_service_km": { "name": "Następny Serwis przy km" },
+      "ranking_min_consumption": { "name": "Najlepsze Spalanie w Rankingu" },
+      "ranking_avg_consumption": { "name": "Średnie Spalanie w Rankingu" },
+      "next_service_km": { "name": "Następny Serwis (km)" },
       "next_service_note": { "name": "Notatka Następnego Serwisu" },
       "next_service_date": { "name": "Data Następnego Serwisu" },
       "km_to_next_service": { "name": "Kilometry do Następnego Serwisu" },
+      "fuel_capacity": { "name": "Pojemność Zbiornika" },
+      "total_fuel": { "name": "Całkowite Zużycie Paliwa" },
+      "avg_consumption": { "name": "Średnie Spalanie" },
+      "last_refuel_quantity": { "name": "Ilość Ostatniego Tankowania" },
+      "last_refuel_price_per_liter": { "name": "Cena/Litr Ostatniego Tankowania" },
+      "last_refuel_consumption": { "name": "Spalanie Ostatniego Tankowania" },
       "fuel_level_estimate": { "name": "Szacowany Poziom Paliwa" },
       "range_estimate": { "name": "Szacowany Zasięg" },
-      "consumption_trend": { "name": "Trend Spalania" },
-      "consumption_consistency": { "name": "Spójność Spalania" },
-      "avg_refuel_quantity": { "name": "Średnia Ilość Tankowania" },
-      "avg_days_between_refuels": { "name": "Średnie Dni Między Tankowaniami" },
-      "price_variability": { "name": "Zmienność Ceny Paliwa" },
-      "eco_driving_index": { "name": "Indeks Eko-Jazdy" }
+      "battery_capacity": { "name": "Pojemność Baterii" },
+      "total_energy_charged": { "name": "Całkowita Naładowana Energia" },
+      "avg_energy_consumption": { "name": "Średnie Zużycie Energii" },
+      "last_charge_energy": { "name": "Energia Ostatniego Ładowania" },
+      "last_charge_price_per_kwh": { "name": "Cena/kWh Ostatniego Ładowania" },
+      "last_charge_consumption": { "name": "Zużycie Ostatniego Ładowania" },
+      "full_battery_range_estimate": { "name": "Szacowany Zasięg (Pełna Bateria)" },
+      "consumption_trend": { "name": "Trend Zużycia" },
+      "consumption_consistency": { "name": "Spójność Zużycia" },
+      "avg_refuel_quantity": { "name": "Średnia Ilość Ładowania/Tankowania" },
+      "avg_days_between_refuels": { "name": "Średnie Dni Między Ładowaniami" },
+      "price_variability": { "name": "Zmienność Ceny" },
+      "eco_driving_index": { "name": "Indeks Eko-Jazdy" },
+      "cost_per_distance": { "name": "Koszt za Dystans" }
+    }
+  },
+  "selector": {
+    "vehicle_type": {
+      "options": {
+        "combustion": "Spalinowy",
+        "electric": "Elektryczny"
+      }
+    },
+    "distance_unit": {
+      "options": {
+        "km": "Kilometry",
+        "mi": "Mile"
+      }
+    },
+    "volume_unit": {
+      "options": {
+        "L": "Litry",
+        "gal": "Galony"
+      }
     }
   }
 }
