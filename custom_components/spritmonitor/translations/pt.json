@@ -8,8 +8,12 @@
         "data": {
           "vehicle_id": "ID do veículo",
           "app_token": "Token da aplicação",
-          "bearer_token": "Token Bearer = Bearer 1234yyyxxxzzz...",
-          "update_interval": "Intervalo de atualização (horas)"
+          "bearer_token": "Token Bearer",
+          "update_interval": "Intervalo de atualização (horas)",
+          "vehicle_type": "Tipo de Veículo",
+          "currency": "Símbolo da Moeda (ex: $, €, BRL)",
+          "distance_unit": "Unidade de Distância",
+          "volume_unit": "Unidade de Volume (para combustão)"
         }
       }
     },
@@ -21,50 +25,68 @@
       "already_configured": "Este veículo já está configurado."
     }
   },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Opções do Spritmonitor",
-        "data": {
-          "update_interval": "Intervalo de atualização (horas)"
-        }
-      }
-    }
-  },
   "entity": {
     "sensor": {
       "brand_model": { "name": "Marca e Modelo" },
       "license_plate": { "name": "Matrícula" },
-      "fuel_capacity": { "name": "Capacidade de Combustível" },
       "total_distance": { "name": "Distância Total Percorrida" },
-      "total_fuel": { "name": "Combustível Total Consumido" },
-      "avg_consumption": { "name": "Consumo Médio" },
-      "last_refuel_date": { "name": "Data do Último Reabastecimento" },
-      "last_refuel_quantity": { "name": "Quantidade do Último Reabastecimento" },
-      "last_refuel_cost": { "name": "Custo do Último Reabastecimento" },
-      "last_refuel_price_per_liter": { "name": "Preço por Litro do Último Reabastecimento" },
-      "last_refuel_odometer": { "name": "Odómetro no Último Reabastecimento" },
-      "last_refuel_trip": { "name": "Distância da Viagem no Último Reabastecimento" },
-      "last_refuel_consumption": { "name": "Consumo no Último Reabastecimento" },
-      "last_refuel_type": { "name": "Tipo de Combustível do Último Reabastecimento" },
-      "last_refuel_location": { "name": "Localização do Último Reabastecimento" },
-      "last_refuel_country": { "name": "País do Último Reabastecimento" },
+      "last_refuel_date": { "name": "Data do Último Carregamento/Reabastecimento" },
+      "last_refuel_odometer": { "name": "Odómetro no Último Carregamento/Reabastecimento" },
+      "last_refuel_trip": { "name": "Distância da Última Viagem" },
+      "last_refuel_cost": { "name": "Custo do Último Carregamento/Reabastecimento" },
+      "last_refuel_type": { "name": "Tipo do Último Carregamento/Reabastecimento" },
+      "last_refuel_location": { "name": "Localização do Último Carregamento/Reabastecimento" },
+      "last_refuel_country": { "name": "País do Último Carregamento/Reabastecimento" },
       "ranking_position": { "name": "Posição no Ranking" },
       "ranking_total": { "name": "Total no Ranking" },
-      "ranking_min_consumption": { "name": "Melhor Consumo do Utilizador" },
-      "ranking_avg_consumption": { "name": "Consumo Médio do Utilizador" },
-      "next_service_km": { "name": "Próximo Serviço em km" },
+      "ranking_min_consumption": { "name": "Melhor Consumo no Ranking" },
+      "ranking_avg_consumption": { "name": "Consumo Médio no Ranking" },
+      "next_service_km": { "name": "Próximo Serviço (km)" },
       "next_service_note": { "name": "Nota do Próximo Serviço" },
       "next_service_date": { "name": "Data do Próximo Serviço" },
       "km_to_next_service": { "name": "Quilómetros até ao Próximo Serviço" },
+      "fuel_capacity": { "name": "Capacidade de Combustível" },
+      "total_fuel": { "name": "Combustível Total Consumido" },
+      "avg_consumption": { "name": "Consumo Médio" },
+      "last_refuel_quantity": { "name": "Quantidade do Último Reabastecimento" },
+      "last_refuel_price_per_liter": { "name": "Preço/Litro do Último Reabastecimento" },
+      "last_refuel_consumption": { "name": "Consumo do Último Reabastecimento" },
       "fuel_level_estimate": { "name": "Nível Estimado de Combustível" },
       "range_estimate": { "name": "Autonomia Estimada" },
+      "battery_capacity": { "name": "Capacidade da Bateria" },
+      "total_energy_charged": { "name": "Energia Total Carregada" },
+      "avg_energy_consumption": { "name": "Consumo Médio de Energia" },
+      "last_charge_energy": { "name": "Energia do Último Carregamento" },
+      "last_charge_price_per_kwh": { "name": "Preço/kWh do Último Carregamento" },
+      "last_charge_consumption": { "name": "Consumo do Último Carregamento" },
+      "full_battery_range_estimate": { "name": "Autonomia Estimada (Bateria Cheia)" },
       "consumption_trend": { "name": "Tendência de Consumo" },
       "consumption_consistency": { "name": "Consistência de Consumo" },
-      "avg_refuel_quantity": { "name": "Quantidade Média de Reabastecimento" },
-      "avg_days_between_refuels": { "name": "Dias Médios entre Reabastecimentos" },
-      "price_variability": { "name": "Variabilidade do Preço do Combustível" },
-      "eco_driving_index": { "name": "Índice de Condução Ecológica" }
+      "avg_refuel_quantity": { "name": "Quantidade Média de Carregamento/Reabastecimento" },
+      "avg_days_between_refuels": { "name": "Dias Médios entre Carregamentos" },
+      "price_variability": { "name": "Variabilidade de Preço" },
+      "eco_driving_index": { "name": "Índice de Condução Ecológica" },
+      "cost_per_distance": { "name": "Custo por Distância" }
+    }
+  },
+  "selector": {
+    "vehicle_type": {
+      "options": {
+        "combustion": "Combustão",
+        "electric": "Elétrico"
+      }
+    },
+    "distance_unit": {
+      "options": {
+        "km": "Quilómetros",
+        "mi": "Milhas"
+      }
+    },
+    "volume_unit": {
+      "options": {
+        "L": "Litros",
+        "gal": "Galões"
+      }
     }
   }
 }
