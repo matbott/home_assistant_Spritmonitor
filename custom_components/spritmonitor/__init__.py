@@ -1,7 +1,10 @@
+# Contenido para: __init__.py
+
 import logging
 import aiohttp
 from datetime import timedelta
 
+# ... (otros imports sin cambios) ...
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -22,20 +25,13 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Spritmonitor from a config entry."""
+    # ... (código inicial sin cambios) ...
     hass.data.setdefault(DOMAIN, {})
-
     vehicle_id = entry.data[CONF_VEHICLE_ID]
     app_token = entry.data[CONF_APP_TOKEN]
     bearer_token = entry.data[CONF_BEARER_TOKEN]
-    
     update_interval_hours = entry.data.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
-
-    headers = {
-        "Application-Id": app_token,
-        "Authorization": bearer_token
-    }
-
+    headers = {"Application-Id": app_token, "Authorization": bearer_token}
     session = async_get_clientsession(hass)
 
     async def async_update_data():
@@ -47,14 +43,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 vehicle_info = next((v for v in vehicles if v["id"] == vehicle_id), None)
                 if not vehicle_info:
                     raise UpdateFailed(f"Vehicle with ID {vehicle_id} not found")
+            
+            # --- CORRECCIÓN MEJORADA DE UNIDADES ---
+            trip_unit = vehicle_info.get("tripunit")
+            quantity_unit = "L" if trip_unit == "km" else "gal"
+            quantity_unit = vehicle_info.get("quantityunit", quantity_unit)
+            
+            # Normalizamos el formato de la unidad de consumo
+            consumption_unit_raw = vehicle_info.get("consumptionunit", "")
+            consumption_unit = consumption_unit_raw.replace('km/l', 'km/L').replace('l/100km', 'L/100km')
 
+            units = {
+                "trip": trip_unit,
+                "quantity": quantity_unit,
+                "consumption": consumption_unit,
+            }
+            # --- FIN DE LA CORRECCIÓN ---
+
+            # ... (el resto de la función se mantiene igual) ...
             fuelings_url = API_FUELINGS_URL_TPL.format(vehicle_id=vehicle_id)
-            async with session.get(f"{fuelings_url}?limit=5", headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+            async with session.get(f"{fuelings_url}?limit=10", headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
                 response.raise_for_status()
                 refuelings = await response.json()
                 last_refueling = refuelings[0] if refuelings else None
-                previous_refueling = refuelings[1] if len(refuelings) > 1 else None
-
             reminders = None
             try:
                 async with session.get(API_REMINDERS_URL, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
@@ -65,11 +76,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.debug("Could not fetch reminders: %s", e)
 
             return {
-                "vehicle": vehicle_info,
-                "last_refueling": last_refueling,
-                "previous_refueling": previous_refueling,
-                "refuelings": refuelings,
-                "reminders": reminders,
+                "vehicle": vehicle_info, "units": units, "last_refueling": last_refueling,
+                "refuelings": refuelings, "reminders": reminders,
             }
         except aiohttp.ClientError as e:
             raise UpdateFailed(f"Connection error with Spritmonitor: {e}")
@@ -77,9 +85,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             raise UpdateFailed(f"Error fetching data from Spritmonitor: {e}")
 
     coordinator = DataUpdateCoordinator(
-        hass,
-        _LOGGER,
-        name="spritmonitor_coordinator",
+        hass, _LOGGER, name=f"spritmonitor_{vehicle_id}",
         update_method=async_update_data,
         update_interval=timedelta(hours=update_interval_hours),
     )

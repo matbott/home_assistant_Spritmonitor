@@ -2,7 +2,6 @@
 
 from homeassistant import config_entries
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.const import UnitOfVolume, UnitOfLength
 import voluptuous as vol
 import aiohttp
 import logging
@@ -18,10 +17,9 @@ from .const import (
     CONF_UPDATE_INTERVAL,
     CONF_VEHICLE_TYPE,
     CONF_CURRENCY,
-    CONF_DISTANCE_UNIT,
-    CONF_VOLUME_UNIT,
     VEHICLE_TYPE_COMBUSTION,
     VEHICLE_TYPE_ELECTRIC,
+    VEHICLE_TYPE_PHEV,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -55,25 +53,17 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Error during configuration: %s", e)
                 errors["base"] = "cannot_connect"
 
-        # --- DATA_SCHEMA ACTUALIZADO PARA USAR TRADUCCIONES ---
+        # --- DATA_SCHEMA SIMPLIFICADO ---
         data_schema = vol.Schema({
             vol.Required(CONF_VEHICLE_ID): int,
             vol.Required(CONF_APP_TOKEN, default=DEFAULT_APP_TOKEN): str,
             vol.Required(CONF_BEARER_TOKEN): str,
-            
-            # Ahora las opciones son una lista de claves, no un diccionario.
-            # Home Assistant buscará las traducciones automáticamente.
             vol.Required(CONF_VEHICLE_TYPE, default=VEHICLE_TYPE_COMBUSTION): vol.In([
-                VEHICLE_TYPE_COMBUSTION, VEHICLE_TYPE_ELECTRIC
+                VEHICLE_TYPE_COMBUSTION, 
+                VEHICLE_TYPE_ELECTRIC,
+                VEHICLE_TYPE_PHEV,
             ]),
-            vol.Required(CONF_CURRENCY, default="UYU"): str,
-            vol.Required(CONF_DISTANCE_UNIT, default=UnitOfLength.KILOMETERS): vol.In([
-                UnitOfLength.KILOMETERS, UnitOfLength.MILES
-            ]),
-            vol.Required(CONF_VOLUME_UNIT, default=UnitOfVolume.LITERS): vol.In([
-                UnitOfVolume.LITERS, UnitOfVolume.GALLONS
-            ]),
-            
+            vol.Required(CONF_CURRENCY, default="USD"): str,
             vol.Required(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): vol.All(
                 vol.Coerce(int), vol.Range(min=1, max=24)
             )
