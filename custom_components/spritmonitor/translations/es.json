@@ -11,81 +11,63 @@
           "bearer_token": "Token Bearer",
           "update_interval": "Intervalo de actualización (horas)",
           "vehicle_type": "Tipo de Vehículo",
-          "currency": "Símbolo de Moneda (ej. $, €, UYU)",
-          "distance_unit": "Unidad de Distancia",
-          "volume_unit": "Unidad de Volumen (para combustión)"
+          "currency": "Símbolo de Moneda (ej. $, €)"
         }
       }
     },
-    "error": {
-      "invalid_auth": "Autenticación inválida.",
-      "cannot_connect": "No se puede conectar."
-    },
-    "abort": {
-      "already_configured": "Este vehículo ya está configurado."
-    }
+    "error": { "invalid_auth": "Autenticación inválida.", "cannot_connect": "No se puede conectar." },
+    "abort": { "already_configured": "Este vehículo ya está configurado." }
   },
   "entity": {
     "sensor": {
-      "brand_model": { "name": "Marca y Modelo" },
-      "license_plate": { "name": "Matrícula" },
-      "total_distance": { "name": "Distancia Total Recorrida" },
-      "last_refuel_date": { "name": "Fecha Última Carga/Repostaje" },
-      "last_refuel_odometer": { "name": "Odómetro Última Carga/Repostaje" },
-      "last_refuel_trip": { "name": "Distancia Último Viaje" },
-      "last_refuel_cost": { "name": "Costo Última Carga/Repostaje" },
-      "last_refuel_type": { "name": "Tipo Última Carga/Repostaje" },
-      "last_refuel_location": { "name": "Ubicación Última Carga/Repostaje" },
-      "last_refuel_country": { "name": "País Última Carga/Repostaje" },
-      "ranking_position": { "name": "Posición en Ranking" },
-      "ranking_total": { "name": "Total en Ranking" },
-      "ranking_min_consumption": { "name": "Mejor Consumo del Ranking" },
-      "ranking_avg_consumption": { "name": "Consumo Promedio del Ranking" },
-      "next_service_km": { "name": "Próximo Servicio (km)" },
-      "next_service_note": { "name": "Nota Próximo Servicio" },
-      "next_service_date": { "name": "Fecha Próximo Servicio" },
-      "km_to_next_service": { "name": "Kms para Próximo Servicio" },
-      "fuel_capacity": { "name": "Capacidad de Combustible" },
-      "total_fuel": { "name": "Combustible Total Consumido" },
-      "avg_consumption": { "name": "Consumo Promedio" },
-      "last_refuel_quantity": { "name": "Cantidad Último Repostaje" },
-      "last_refuel_price_per_liter": { "name": "Precio/Litro Último Repostaje" },
-      "last_refuel_consumption": { "name": "Consumo Último Repostaje" },
-      "fuel_level_estimate": { "name": "Nivel de Combustible Estimado" },
-      "range_estimate": { "name": "Autonomía Estimada" },
-      "battery_capacity": { "name": "Capacidad de Batería" },
-      "total_energy_charged": { "name": "Energía Total Cargada" },
-      "avg_energy_consumption": { "name": "Consumo Promedio de Energía" },
-      "last_charge_energy": { "name": "Energía Última Carga" },
-      "last_charge_price_per_kwh": { "name": "Precio/kWh Última Carga" },
-      "last_charge_consumption": { "name": "Consumo Última Carga" },
-      "full_battery_range_estimate": { "name": "Autonomía Estimada (Batería Llena)" },
-      "consumption_trend": { "name": "Tendencia de Consumo" },
-      "consumption_consistency": { "name": "Consistencia de Consumo" },
-      "avg_refuel_quantity": { "name": "Cantidad Promedio Carga/Repostaje" },
-      "avg_days_between_refuels": { "name": "Días Promedio entre Cargas" },
-      "price_variability": { "name": "Variabilidad de Precio" },
-      "eco_driving_index": { "name": "Índice de Conducción Ecológica" },
-      "cost_per_distance": { "name": "Costo por Distancia" }
+        "brand_model": { "name": "Marca y Modelo" },
+        "license_plate": { "name": "Matrícula" },
+        "total_distance": { "name": "Distancia Total Recorrida" },
+        "last_refuel_date": { "name": "Fecha Última Carga/Repostaje" },
+        "last_refuel_odometer": { "name": "Odómetro Última Carga/Repostaje" },
+        "last_refuel_trip": { "name": "Distancia Último Viaje" },
+        "last_refuel_cost": { "name": "Costo Última Carga/Repostaje" },
+        "last_refuel_type": { "name": "Tipo Última Carga/Repostaje" },
+        "last_refuel_location": { "name": "Ubicación Última Carga/Repostaje" },
+        "last_refuel_country": { "name": "País Última Carga/Repostaje" },
+        "ranking_position": { "name": "Posición en Ranking" },
+        "ranking_total": { "name": "Total en Ranking" },
+        "ranking_min_consumption": { "name": "Mejor Consumo del Ranking" },
+        "ranking_avg_consumption": { "name": "Consumo Promedio del Ranking" },
+        "next_service_km": { "name": "Próximo Servicio (km)" },
+        "next_service_note": { "name": "Nota Próximo Servicio" },
+        "next_service_date": { "name": "Fecha Próximo Servicio" },
+        "km_to_next_service": { "name": "Kms para Próximo Servicio" },
+        "fuel_capacity": { "name": "Capacidad de Combustible" },
+        "total_fuel": { "name": "Combustible Total Consumido" },
+        "avg_consumption": { "name": "Consumo Promedio" },
+        "last_refuel_quantity": { "name": "Cantidad Último Repostaje" },
+        "last_refuel_price_per_liter": { "name": "Precio/Litro Último Repostaje" },
+        "last_refuel_consumption": { "name": "Consumo Último Repostaje" },
+        "fuel_level_estimate": { "name": "Nivel de Combustible Estimado" },
+        "range_estimate": { "name": "Autonomía Estimada" },
+        "battery_capacity": { "name": "Capacidad de Batería" },
+        "total_energy_charged": { "name": "Energía Total Cargada" },
+        "avg_energy_consumption": { "name": "Consumo Promedio de Energía" },
+        "last_charge_energy": { "name": "Energía Última Carga" },
+        "last_charge_price_per_kwh": { "name": "Precio/kWh Última Carga" },
+        "last_charge_consumption": { "name": "Consumo Última Carga" },
+        "full_battery_range_estimate": { "name": "Autonomía Estimada (Batería Llena)" },
+        "consumption_trend": { "name": "Tendencia de Consumo" },
+        "consumption_consistency": { "name": "Consistencia de Consumo" },
+        "avg_refuel_quantity": { "name": "Cantidad Promedio Carga/Repostaje" },
+        "avg_days_between_refuels": { "name": "Días Promedio entre Cargas" },
+        "price_variability": { "name": "Variabilidad de Precio" },
+        "eco_driving_index": { "name": "Índice de Conducción Ecológica" },
+        "cost_per_distance": { "name": "Costo por Distancia" }
     }
   },
   "selector": {
     "vehicle_type": {
       "options": {
         "combustion": "Combustión",
-        "electric": "Eléctrico"
-      }
-    },
-    "distance_unit": {
-      "options": {
-        "km": "Kilómetros",
-        "mi": "Millas"
-      }
-    },
-    "volume_unit": {
-      "options": {
-        "L": "Litros",
-        "gal": "Galones"
+        "electric": "Eléctrico",
+        "phev": "Híbrido Enchufable (PHEV)"
       }
     }
   }

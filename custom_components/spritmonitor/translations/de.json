@@ -11,9 +11,7 @@
           "bearer_token": "Bearer-Token",
           "update_interval": "Aktualisierungsintervall (Stunden)",
           "vehicle_type": "Fahrzeugtyp",
-          "currency": "Währungssymbol (z.B.: $, €, UYU)",
-          "distance_unit": "Entfernungseinheit",
-          "volume_unit": "Volumeneinheit (für Verbrenner)"
+          "currency": "Währungssymbol (z.B.: $, €)"
         }
       }
     },
@@ -24,47 +22,53 @@
     "sensor": {
       "brand_model": { "name": "Marke und Modell" },
       "license_plate": { "name": "Kennzeichen" },
-      "total_distance": { "name": "Insgesamt zurückgelegte Strecke" },
+      "total_distance": { "name": "Gesamtdistanz" },
       "last_refuel_date": { "name": "Datum des letzten Lade-/Tankvorgangs" },
       "last_refuel_odometer": { "name": "Kilometerstand des letzten Lade-/Tankvorgangs" },
-      "last_refuel_trip": { "name": "Letzte Distanz" },
-      "last_refuel_quantity": { "name": "Menge des letzten Lade-/Tankvorgangs" },
+      "last_refuel_trip": { "name": "Letzte Wegstrecke" },
       "last_refuel_cost": { "name": "Kosten des letzten Lade-/Tankvorgangs" },
-      "last_refuel_type": { "name": "Typ des letzten Lade-/Tankvorgangs" },
+      "last_refuel_type": { "name": "Art des letzten Lade-/Tankvorgangs" },
       "last_refuel_location": { "name": "Ort des letzten Lade-/Tankvorgangs" },
       "last_refuel_country": { "name": "Land des letzten Lade-/Tankvorgangs" },
-      "ranking_position": { "name": "Rang" },
-      "ranking_total": { "name": "Anzahl der Fahrzeuge in Rangliste" },
+      "ranking_position": { "name": "Ranglistenposition" },
+      "ranking_total": { "name": "Gesamt in Rangliste" },
       "ranking_min_consumption": { "name": "Bester Verbrauch in Rangliste" },
-      "ranking_avg_consumption": { "name": "Bester durchschnittlicher Verbrauch in Rangliste" },
+      "ranking_avg_consumption": { "name": "Ø-Verbrauch in Rangliste" },
       "next_service_km": { "name": "Nächster Service (km)" },
-      "next_service_note": { "name": "Nächste Servicenotiz" },
-      "next_service_date": { "name": "Nächstes Servicedatum" },
+      "next_service_note": { "name": "Notiz zum nächsten Service" },
+      "next_service_date": { "name": "Datum des nächsten Service" },
       "km_to_next_service": { "name": "Kilometer bis zum nächsten Service" },
       "fuel_capacity": { "name": "Tankvolumen" },
       "total_fuel": { "name": "Insgesamt verbrauchter Kraftstoff" },
       "avg_consumption": { "name": "Durchschnittlicher Verbrauch" },
-      "last_refuel_price_per_liter": { "name": "Letzte Betankung Preis/Liter" },
-      "last_refuel_consumption": { "name": "Verbrauch beim letzten Tankvorgang" },
+      "last_refuel_quantity": { "name": "Menge des letzten Tankvorgangs" },
+      "last_refuel_price_per_liter": { "name": "Preis/Liter des letzten Tankvorgangs" },
+      "last_refuel_consumption": { "name": "Verbrauch des letzten Tankvorgangs" },
       "fuel_level_estimate": { "name": "Geschätzter Füllstand" },
       "range_estimate": { "name": "Geschätzte Reichweite" },
       "battery_capacity": { "name": "Akkukapazität" },
       "total_energy_charged": { "name": "Insgesamt geladene Energie" },
       "avg_energy_consumption": { "name": "Durchschnittlicher Energieverbrauch" },
-      "last_charge_price_per_kwh": { "name": "Letzte Ladung Preis/kWh" },
-      "last_charge_consumption": { "name": "Verbrauch beim letzten Ladevorgang" },
-      "full_battery_range_estimate": { "name": "Geschätzte Reichweite bei vollem Akku" },
+      "last_charge_energy": { "name": "Energie des letzten Ladevorgangs" },
+      "last_charge_price_per_kwh": { "name": "Preis/kWh des letzten Ladevorgangs" },
+      "last_charge_consumption": { "name": "Verbrauch des letzten Ladevorgangs" },
+      "full_battery_range_estimate": { "name": "Geschätzte Reichweite (Volle Batterie)" },
       "consumption_trend": { "name": "Verbrauchstrend" },
-      "consumption_consistency": { "name": "Konsistenz des Verbrauchs" },
-      "avg_refuel_quantity": { "name": "Durchschnittliche Ladungs-/Betankungsmenge" },
-      "avg_days_between_refuels": { "name": "Durchschnittliche Tage zwischen Lade-/Tankvorgängen" },
-      "price_variability": { "name": "Preisschwankungen" },
-      "eco_driving_index": { "name": "Öko-Fahrindex" }
+      "consumption_consistency": { "name": "Verbrauchskonstanz" },
+      "avg_refuel_quantity": { "name": "Ø-Menge pro Lade-/Tankvorgang" },
+      "avg_days_between_refuels": { "name": "Ø-Tage zwischen Lade-/Tankvorgängen" },
+      "price_variability": { "name": "Preisvariabilität" },
+      "eco_driving_index": { "name": "Öko-Fahrindex" },
+      "cost_per_distance": { "name": "Kosten pro Distanz" }
     }
   },
   "selector": {
-    "vehicle_type": { "options": { "combustion": "Verbrenner", "electric": "Elektrisch" } },
-    "distance_unit": { "options": { "km": "Kilometer", "mi": "Meilen" } },
-    "volume_unit": { "options": { "L": "Liter", "gal": "Gallonen" } }
+    "vehicle_type": {
+      "options": {
+        "combustion": "Verbrenner",
+        "electric": "Elektrisch",
+        "phev": "Plug-in-Hybrid (PHEV)"
+      }
+    }
   }
 }

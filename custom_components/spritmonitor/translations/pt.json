@@ -11,9 +11,7 @@
           "bearer_token": "Token Bearer",
           "update_interval": "Intervalo de atualização (horas)",
           "vehicle_type": "Tipo de Veículo",
-          "currency": "Símbolo da Moeda (ex: $, €, BRL)",
-          "distance_unit": "Unidade de Distância",
-          "volume_unit": "Unidade de Volume (para combustão)"
+          "currency": "Símbolo da Moeda (ex: $, €, BRL)"
         }
       }
     },
@@ -73,19 +71,8 @@
     "vehicle_type": {
       "options": {
         "combustion": "Combustão",
-        "electric": "Elétrico"
-      }
-    },
-    "distance_unit": {
-      "options": {
-        "km": "Quilómetros",
-        "mi": "Milhas"
-      }
-    },
-    "volume_unit": {
-      "options": {
-        "L": "Litros",
-        "gal": "Galões"
+        "electric": "Elétrico",
+        "phev": "Híbrido Plug-in (PHEV)"
       }
     }
   }

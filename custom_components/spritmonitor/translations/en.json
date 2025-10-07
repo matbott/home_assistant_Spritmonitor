@@ -11,9 +11,7 @@
           "bearer_token": "Bearer Token",
           "update_interval": "Update interval (hours)",
           "vehicle_type": "Vehicle Type",
-          "currency": "Currency Symbol (e.g., $, €, UYU)",
-          "distance_unit": "Distance Unit",
-          "volume_unit": "Volume Unit (for combustion)"
+          "currency": "Currency Symbol (e.g., $, €)"
         }
       }
     },
@@ -28,7 +26,6 @@
       "last_refuel_date": { "name": "Last Charge/Refuel Date" },
       "last_refuel_odometer": { "name": "Last Charge/Refuel Odometer" },
       "last_refuel_trip": { "name": "Last Trip Distance" },
-      "last_refuel_quantity": { "name": "Last Charge/Refuel Quantity" },
       "last_refuel_cost": { "name": "Last Charge/Refuel Cost" },
       "last_refuel_type": { "name": "Last Charge/Refuel Type" },
       "last_refuel_location": { "name": "Last Charge/Refuel Location" },
@@ -44,6 +41,7 @@
       "fuel_capacity": { "name": "Fuel Capacity" },
       "total_fuel": { "name": "Total Fuel Consumed" },
       "avg_consumption": { "name": "Average Consumption" },
+      "last_refuel_quantity": { "name": "Last Refuel Quantity" },
       "last_refuel_price_per_liter": { "name": "Last Refuel Price/Liter" },
       "last_refuel_consumption": { "name": "Last Refuel Consumption" },
       "fuel_level_estimate": { "name": "Estimated Fuel Level" },
@@ -51,6 +49,7 @@
       "battery_capacity": { "name": "Battery Capacity" },
       "total_energy_charged": { "name": "Total Energy Charged" },
       "avg_energy_consumption": { "name": "Average Energy Consumption" },
+      "last_charge_energy": { "name": "Last Charge Energy" },
       "last_charge_price_per_kwh": { "name": "Last Charge Price/kWh" },
       "last_charge_consumption": { "name": "Last Charge Consumption" },
       "full_battery_range_estimate": { "name": "Full Battery Range Estimate" },
@@ -59,12 +58,17 @@
       "avg_refuel_quantity": { "name": "Average Charge/Refuel Quantity" },
       "avg_days_between_refuels": { "name": "Average Days Between Charges/Refuels" },
       "price_variability": { "name": "Price Variability" },
-      "eco_driving_index": { "name": "Eco Driving Index" }
+      "eco_driving_index": { "name": "Eco Driving Index" },
+      "cost_per_distance": { "name": "Cost per Distance" }
     }
   },
   "selector": {
-    "vehicle_type": { "options": { "combustion": "Combustion", "electric": "Electric" } },
-    "distance_unit": { "options": { "km": "Kilometers", "mi": "Miles" } },
-    "volume_unit": { "options": { "L": "Liters", "gal": "Gallons" } }
+    "vehicle_type": {
+      "options": {
+        "combustion": "Combustion",
+        "electric": "Electric",
+        "phev": "Plug-in Hybrid (PHEV)"
+      }
+    }
   }
 }
