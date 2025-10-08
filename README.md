@@ -8,12 +8,10 @@ This integration brings a wealth of data to your dashboard, from average consump
 
 ## 🌟 Key Features
 
-* 🔌 **Multi-Vehicle Support**: Supports both **combustion** (gasoline, diesel) and **electric** vehicles.
-* 🔧 **Flexible Configuration**: Customize units of measurement to your preference:
-    * **Currency**: Choose your local currency symbol (e.g., `USD`, `€`, `UYU`).
-    * **Distance**: Kilometers (`km`) or Miles (`mi`).
-    * **Volume**: Liters (`L`) or Gallons (`gal`).
-* 📊 **Over 30 Entities**: Provides a comprehensive set of sensors for detailed analysis.
+* 🔌 **Complete Vehicle Support**: Supports **Combustion** (gasoline, diesel), pure **Electric** (EV), and **Plug-in Hybrid (PHEV)** vehicles.
+* 🧠 **Automatic Unit Detection**: Configuration is simpler than ever! The integration automatically detects and uses the units (`km`/`mi`, `L/100km`/`km/L`, etc.) directly from your Spritmonitor profile.
+* 🚗⚡️ **Full Plug-in Hybrid (PHEV) Support**: Get a complete picture of your PHEV's performance. When configured as a PHEV, the integration creates **both** the full set of fuel sensors and the full set of electric sensors.
+* 📊 **Over 30 Entities**: Provides a comprehensive set of sensors for a detailed analysis of each fuel type.
 * 💡 **Calculated Sensors**: Transforms raw data into useful insights, like consumption trends, an eco-driving index, and your real cost per distance.
 * 🏆 **Ranking Data**: Compare your vehicle's performance against other similar models on Spritmonitor.
 
@@ -31,18 +29,16 @@ This integration brings a wealth of data to your dashboard, from average consump
 
 1.  Go to **Settings > Devices & Services**.
 2.  Click **"Add Integration"** and search for **"Spritmonitor"**.
-3.  Fill out the form with your vehicle and API credentials. This includes:
+3.  Fill out the form with your vehicle and API credentials. The configuration is now much simpler:
     * **Vehicle ID**: Your vehicle's ID number from Spritmonitor.
     * **Application Token** and **Bearer Token**.
-    * **Vehicle Type**: Select **Combustion** or **Electric**. This step is crucial!
-    * **Currency, Distance Unit, and Volume Unit**.
+    * **Vehicle Type**: Select `Combustion`, `Electric`, or `PHEV`. This step is crucial!
+    * **Currency**: Enter your desired currency symbol (e.g., `USD`, `€`, `UYU`).
 4.  Click **"Submit"**.
 
 **NOTE:** The default Application ID is `095369dede84c55797c22d4854ca6efe`
 
 **NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx`
-
-<img width="411" height="914" alt="image" src="https://github.com/user-attachments/assets/427899e8-8e1e-4cdf-a14a-f27f515f3ddd" />
 
 ## 📈 Sensors Created
 
@@ -79,7 +75,7 @@ All sensors will be grouped under a device named after your vehicle (e.g., `BYD 
 #### 🔥 Specific Sensors (if type is Combustion)
 * Fuel Capacity
 * Total Fuel Consumed
-* Average Consumption (e.g., `km/L`)
+* Average Consumption
 * Last Refuel Quantity
 * Last Refuel Price/Liter
 * Last Refuel Consumption
@@ -89,7 +85,7 @@ All sensors will be grouped under a device named after your vehicle (e.g., `BYD 
 #### ⚡️ Specific Sensors (if type is Electric)
 * Battery Capacity (in `kWh`)
 * Total Energy Charged
-* Average Energy Consumption (e.g., `kWh/100km`)
+* Average Energy Consumption
 * Last Charge Energy
 * Last Charge Price/kWh
 * Last Charge Consumption
@@ -97,14 +93,21 @@ All sensors will be grouped under a device named after your vehicle (e.g., `BYD 
 
 ---
 
-#### 🧠 Calculated Sensors (Common to both)
-* **Consumption Trend**: Shows if your consumption is `improving`, `worsening`, or `stable`.
-* **Consumption Consistency**: The standard deviation of your consumption. A lower value is better.
-* **Average Charge/Refuel Quantity**: The average amount of fuel/energy you add per stop.
-* **Average Days Between Charges/Refuels**: How frequently you charge or refuel.
-* **Price Variability**: How much the price of energy/fuel has fluctuated.
-* **Eco Driving Index**: A score from 1 to 10 on your driving efficiency.
-* **Cost per Distance**: The real cost for every kilometer or mile driven.
+#### 🚗⚡️ Specific Sensors (if type is PHEV)
+When a vehicle is configured as a Plug-in Hybrid, the integration will create **both** of the above groups: the full set of **🔥 Combustion Sensors** and the full set of **⚡️ Electric Sensors**, allowing for a complete overview of the vehicle.
+
+---
+
+#### 🧠 Calculated Sensors
+* **For Combustion and Electric vehicles**, these common sensors are created:
+    * Consumption Trend
+    * Consumption Consistency
+    * Average Charge/Refuel Quantity
+    * Average Days Between Charges/Refuels
+    * Price Variability
+    * Eco Driving Index
+    * Cost per Distance
+* **For PHEV vehicles**, these sensors are created **twice**—once for each fuel type—with clear names to distinguish them (e.g., `Cost per Distance (Fuel)` and `Cost per Distance (Electric)`).
 
 ## Troubleshooting
 
