@@ -14,9 +14,7 @@
           "currency": "Currency Symbol (e.g., $, €)"
         }
       }
-    },
-    "error": { "invalid_auth": "Invalid authentication.", "cannot_connect": "Unable to connect." },
-    "abort": { "already_configured": "This vehicle is already configured." }
+    }
   },
   "entity": {
     "sensor": {
@@ -59,7 +57,21 @@
       "avg_days_between_refuels": { "name": "Average Days Between Charges/Refuels" },
       "price_variability": { "name": "Price Variability" },
       "eco_driving_index": { "name": "Eco Driving Index" },
-      "cost_per_distance": { "name": "Cost per Distance" }
+      "cost_per_distance": { "name": "Cost per Distance" },
+      "consumption_trend_fuel": { "name": "Consumption Trend (Fuel)" },
+      "consumption_consistency_fuel": { "name": "Consumption Consistency (Fuel)" },
+      "avg_refuel_quantity_fuel": { "name": "Average Refuel Quantity" },
+      "avg_days_between_refuels_fuel": { "name": "Average Days Between Refuels" },
+      "price_variability_fuel": { "name": "Price Variability (Fuel)" },
+      "eco_driving_index_fuel": { "name": "Eco Driving Index (Fuel)" },
+      "cost_per_distance_fuel": { "name": "Cost per Distance (Fuel)" },
+      "consumption_trend_electric": { "name": "Consumption Trend (Electric)" },
+      "consumption_consistency_electric": { "name": "Consumption Consistency (Electric)" },
+      "avg_refuel_quantity_electric": { "name": "Average Charge Quantity" },
+      "avg_days_between_refuels_electric": { "name": "Average Days Between Charges" },
+      "price_variability_electric": { "name": "Price Variability (Electric)" },
+      "eco_driving_index_electric": { "name": "Eco Driving Index (Electric)" },
+      "cost_per_distance_electric": { "name": "Cost per Distance (Electric)" }
     }
   },
   "selector": {
