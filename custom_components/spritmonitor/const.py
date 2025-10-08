@@ -14,7 +14,12 @@ DEFAULT_UPDATE_INTERVAL = 6
 API_BASE_URL = "https://api.spritmonitor.de/v1"
 API_VEHICLES_URL = f"{API_BASE_URL}/vehicles.json"
 API_REMINDERS_URL = f"{API_BASE_URL}/reminders.json"
+
+# --- URL DE FUELINGS CORREGIDA (VUELTA A LA ORIGINAL) ---
 API_FUELINGS_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/fuelings.json"
+
+# --- LÍNEA ANTIGUA ELIMINADA ---
+# API_FUELINGS_URL = f"{API_BASE_URL}/fuelings.json"
 
 # Configuration keys
 CONF_VEHICLE_ID = "vehicle_id"
@@ -27,4 +32,4 @@ CONF_CURRENCY = "currency"
 # Vehicle Types
 VEHICLE_TYPE_COMBUSTION = "combustion"
 VEHICLE_TYPE_ELECTRIC = "electric"
-VEHICLE_TYPE_PHEV = "phev" # Nuevo para el futuro
+VEHICLE_TYPE_PHEV = "phev"

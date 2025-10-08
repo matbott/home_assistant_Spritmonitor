@@ -1,4 +1,4 @@
-# Contenido para: sensor.py (Versión con corrección de TypeError)
+# Contenido para: sensor.py
 
 import logging
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
@@ -14,7 +14,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# --- (Todas las funciones helper se mantienen igual) ---
+# --- (Las funciones de cálculo se mantienen igual) ---
 def calculate_price_per_unit(cost, quantity):
     if not cost or not quantity or float(quantity) == 0: return None
     return round(float(cost) / float(quantity), 3)
@@ -48,9 +48,9 @@ def calculate_km_to_service(data):
     service_km = next_service.get('next_odometer', 0)
     return max(0, service_km - current_km)
 def calculate_fuel_level_estimate(data):
-    if not data.get('vehicle') or not data.get('last_refueling'): return None
+    if not data.get('vehicle') or not data.get('last_gas_refueling'): return None
     capacity = float(data['vehicle'].get('capacity', 0))
-    last_refuel_quantity = float(data['last_refueling'].get('quantity', 0))
+    last_refuel_quantity = float(data['last_gas_refueling'].get('quantity', 0))
     return min(capacity, last_refuel_quantity) if capacity > 0 else None
 def calculate_range_estimate(data):
     fuel_level = calculate_fuel_level_estimate(data)
@@ -129,78 +129,91 @@ def calculate_full_battery_range(data):
     if capacity <= 0 or consumption_per_100km <= 0: return None
     return round((capacity * 100) / consumption_per_100km)
 
-
 async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     vehicle_type = config_entry.data.get(CONF_VEHICLE_TYPE)
     
     all_sensors = []
     
-    # --- SECCIÓN 1: SENSORES BÁSICOS (COMUNES) ---
+    # Sensores comunes
     all_sensors.extend([
         SpritmonitorSensor(coordinator, "brand_model", lambda d: f"{d['vehicle'].get('make', '')} {d['vehicle'].get('model', '')}"),
         SpritmonitorSensor(coordinator, "license_plate", lambda d: d['vehicle'].get('sign')),
         SpritmonitorSensor(coordinator, "total_distance", lambda d: float(d['vehicle'].get('tripsum', 0)), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.TOTAL),
-    ])
-    # --- SECCIÓN 2: ÚLTIMO REPOSTAJE/CARGA (COMUNES) ---
-    all_sensors.extend([
-        SpritmonitorSensor(coordinator, "last_refuel_date", lambda d: d['last_refueling'].get('date')),
-        SpritmonitorSensor(coordinator, "last_refuel_odometer", lambda d: float(d['last_refueling'].get('odometer', 0)), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.TOTAL),
-        SpritmonitorSensor(coordinator, "last_refuel_trip", lambda d: float(d['last_refueling'].get('trip', 0)), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT),
-        SpritmonitorSensor(coordinator, "last_refuel_cost", lambda d: format_cost(d['last_refueling'].get('cost', 0)), device_class=SensorDeviceClass.MONETARY, state_class=None),
-        SpritmonitorSensor(coordinator, "last_refuel_type", lambda d: d['last_refueling'].get('type')),
-        SpritmonitorSensor(coordinator, "last_refuel_location", lambda d: d['last_refueling'].get('location')),
-        SpritmonitorSensor(coordinator, "last_refuel_country", lambda d: d['last_refueling'].get('country')),
-    ])
-    # --- SECCIÓN 3: RANKING (COMUNES) ---
-    all_sensors.extend([
+        SpritmonitorSensor(coordinator, "last_refuel_date", lambda d: d.get('last_refueling', {}).get('date')),
+        SpritmonitorSensor(coordinator, "last_refuel_odometer", lambda d: float(d.get('last_refueling', {}).get('odometer', 0)), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.TOTAL),
+        SpritmonitorSensor(coordinator, "last_refuel_trip", lambda d: float(d.get('last_refueling', {}).get('trip', 0)), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT),
+        SpritmonitorSensor(coordinator, "last_refuel_cost", lambda d: format_cost(d.get('last_refueling', {}).get('cost', 0)), device_class=SensorDeviceClass.MONETARY, state_class=None),
+        SpritmonitorSensor(coordinator, "last_refuel_type", lambda d: d.get('last_refueling', {}).get('type')),
+        SpritmonitorSensor(coordinator, "last_refuel_location", lambda d: d.get('last_refueling', {}).get('location')),
+        SpritmonitorSensor(coordinator, "last_refuel_country", lambda d: d.get('last_refueling', {}).get('country')),
         SpritmonitorSensor(coordinator, "ranking_position", lambda d: d['vehicle']['rankingInfo'].get('rank'), state_class=SensorStateClass.MEASUREMENT),
         SpritmonitorSensor(coordinator, "ranking_total", lambda d: d['vehicle']['rankingInfo'].get('total')),
         SpritmonitorSensor(coordinator, "ranking_min_consumption", lambda d: float(d['vehicle']['rankingInfo'].get('min', 0)), state_class=SensorStateClass.MEASUREMENT),
         SpritmonitorSensor(coordinator, "ranking_avg_consumption", lambda d: float(d['vehicle']['rankingInfo'].get('avg', 0)), state_class=SensorStateClass.MEASUREMENT),
-    ])
-    # --- SECCIÓN 4: MANTENIMIENTO (COMUNES) ---
-    all_sensors.extend([
-        # --- ¡AQUÍ ESTÁ LA CORRECCIÓN! ---
-        SpritmonitorSensor(coordinator, "next_service_km", lambda d: (reminder.get('next_odometer') if (reminder := get_next_service_reminder(d.get('reminders', []))) else None)),
-        SpritmonitorSensor(coordinator, "next_service_note", lambda d: (reminder.get('note') if (reminder := get_next_service_reminder(d.get('reminders', []))) else None)),
+        SpritmonitorSensor(coordinator, "next_service_km", lambda d: (r.get('next_odometer') if (r := get_next_service_reminder(d.get('reminders', []))) else None)),
+        SpritmonitorSensor(coordinator, "next_service_note", lambda d: (r.get('note') if (r := get_next_service_reminder(d.get('reminders', []))) else None)),
         SpritmonitorSensor(coordinator, "next_service_date", lambda d: get_next_service_date_reminder(d.get('reminders', []))),
         SpritmonitorSensor(coordinator, "km_to_next_service", lambda d: calculate_km_to_service(d), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT),
     ])
-    # --- SECCIÓN 5: SENSORES ESPECÍFICOS POR TIPO DE VEHÍCULO ---
+
     is_combustion = vehicle_type in [VEHICLE_TYPE_COMBUSTION, VEHICLE_TYPE_PHEV]
     is_electric = vehicle_type in [VEHICLE_TYPE_ELECTRIC, VEHICLE_TYPE_PHEV]
+
     if is_combustion:
-        all_sensors.extend([
+        combustion_sensors = [
             SpritmonitorSensor(coordinator, "fuel_capacity", lambda d: float(d['vehicle'].get('capacity', 0)), device_class=SensorDeviceClass.VOLUME),
             SpritmonitorSensor(coordinator, "total_fuel", lambda d: float(d['vehicle'].get('quantitysum', 0)), device_class=SensorDeviceClass.VOLUME, state_class=SensorStateClass.TOTAL_INCREASING),
             SpritmonitorSensor(coordinator, "avg_consumption", lambda d: float(d['vehicle'].get('consumption', 0)), state_class=SensorStateClass.MEASUREMENT),
-            SpritmonitorSensor(coordinator, "last_refuel_quantity", lambda d: float(d['last_refueling'].get('quantity', 0)), state_class=SensorStateClass.MEASUREMENT),
-            SpritmonitorSensor(coordinator, "last_refuel_price_per_liter", lambda d: calculate_price_per_unit(d['last_refueling'].get('cost'), d['last_refueling'].get('quantity')), state_class=SensorStateClass.MEASUREMENT),
-            SpritmonitorSensor(coordinator, "last_refuel_consumption", lambda d: float(d['last_refueling'].get('consumption', 0)), state_class=SensorStateClass.MEASUREMENT),
+            SpritmonitorSensor(coordinator, "last_refuel_quantity", lambda d: float(d.get('last_gas_refueling', {}).get('quantity', 0)), state_class=SensorStateClass.MEASUREMENT),
+            SpritmonitorSensor(coordinator, "last_refuel_price_per_liter", lambda d: calculate_price_per_unit(d.get('last_gas_refueling', {}).get('cost'), d.get('last_gas_refueling', {}).get('quantity')), state_class=SensorStateClass.MEASUREMENT),
+            SpritmonitorSensor(coordinator, "last_refuel_consumption", lambda d: float(d.get('last_gas_refueling', {}).get('consumption', 0)), state_class=SensorStateClass.MEASUREMENT),
             SpritmonitorSensor(coordinator, "fuel_level_estimate", lambda d: calculate_fuel_level_estimate(d), state_class=SensorStateClass.MEASUREMENT),
             SpritmonitorSensor(coordinator, "range_estimate", lambda d: calculate_range_estimate(d), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT),
-        ])
+        ]
+        all_sensors.extend(combustion_sensors)
+
     if is_electric:
-        all_sensors.extend([
+        electric_sensors = [
             SpritmonitorSensor(coordinator, "battery_capacity", lambda d: float(d['vehicle'].get('capacity', 0)), device_class=SensorDeviceClass.ENERGY, state_class=None),
             SpritmonitorSensor(coordinator, "total_energy_charged", lambda d: float(d['vehicle'].get('quantitysum', 0)), device_class=SensorDeviceClass.ENERGY, state_class=SensorStateClass.TOTAL_INCREASING),
             SpritmonitorSensor(coordinator, "avg_energy_consumption", lambda d: float(d['vehicle'].get('consumption', 0)), state_class=SensorStateClass.MEASUREMENT),
-            SpritmonitorSensor(coordinator, "last_charge_energy", lambda d: float(d['last_refueling'].get('quantity', 0)), device_class=SensorDeviceClass.ENERGY, state_class=None),
-            SpritmonitorSensor(coordinator, "last_charge_price_per_kwh", lambda d: calculate_price_per_unit(d['last_refueling'].get('cost'), d['last_refueling'].get('quantity')), state_class=SensorStateClass.MEASUREMENT),
-            SpritmonitorSensor(coordinator, "last_charge_consumption", lambda d: float(d['last_refueling'].get('consumption', 0)), state_class=SensorStateClass.MEASUREMENT),
+            SpritmonitorSensor(coordinator, "last_charge_energy", lambda d: float(d.get('last_electric_charge', {}).get('quantity', 0)), device_class=SensorDeviceClass.ENERGY, state_class=None),
+            SpritmonitorSensor(coordinator, "last_charge_price_per_kwh", lambda d: calculate_price_per_unit(d.get('last_electric_charge', {}).get('cost'), d.get('last_electric_charge', {}).get('quantity')), state_class=SensorStateClass.MEASUREMENT),
+            SpritmonitorSensor(coordinator, "last_charge_consumption", lambda d: float(d.get('last_electric_charge', {}).get('consumption', 0)), state_class=SensorStateClass.MEASUREMENT),
             SpritmonitorSensor(coordinator, "full_battery_range_estimate", lambda d: calculate_full_battery_range(d), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT),
-        ])
-    # --- SECCIÓN 6: SENSORES CALCULADOS (COMUNES) ---
-    all_sensors.extend([
-        SpritmonitorSensor(coordinator, "consumption_trend", lambda d: calculate_consumption_trend(d.get('refuelings', []))),
-        SpritmonitorSensor(coordinator, "consumption_consistency", lambda d: calculate_consumption_consistency(d.get('refuelings', []))),
-        SpritmonitorSensor(coordinator, "avg_refuel_quantity", lambda d: calculate_avg_refuel_quantity(d.get('refuelings', []))),
-        SpritmonitorSensor(coordinator, "avg_days_between_refuels", lambda d: calculate_avg_days_between_refuels(d.get('refuelings', []))),
-        SpritmonitorSensor(coordinator, "price_variability", lambda d: calculate_price_variability(d.get('refuelings', []))),
-        SpritmonitorSensor(coordinator, "eco_driving_index", lambda d: calculate_eco_driving_index(d.get('refuelings', []), d.get('vehicle', {}).get('consumption'))),
-        SpritmonitorSensor(coordinator, "cost_per_distance", lambda d: calculate_cost_per_distance(d.get('refuelings', [])), state_class=SensorStateClass.MEASUREMENT),
-    ])
+        ]
+        all_sensors.extend(electric_sensors)
+    
+    if vehicle_type == VEHICLE_TYPE_PHEV:
+        phev_calculated_sensors = [
+            SpritmonitorSensor(coordinator, "consumption_trend_fuel", lambda d: calculate_consumption_trend(d.get('gas_refuelings', []))),
+            SpritmonitorSensor(coordinator, "consumption_consistency_fuel", lambda d: calculate_consumption_consistency(d.get('gas_refuelings', []))),
+            SpritmonitorSensor(coordinator, "avg_refuel_quantity_fuel", lambda d: calculate_avg_refuel_quantity(d.get('gas_refuelings', []))),
+            SpritmonitorSensor(coordinator, "avg_days_between_refuels_fuel", lambda d: calculate_avg_days_between_refuels(d.get('gas_refuelings', []))),
+            SpritmonitorSensor(coordinator, "price_variability_fuel", lambda d: calculate_price_variability(d.get('gas_refuelings', []))),
+            SpritmonitorSensor(coordinator, "eco_driving_index_fuel", lambda d: calculate_eco_driving_index(d.get('gas_refuelings', []), d.get('vehicle', {}).get('consumption'))),
+            SpritmonitorSensor(coordinator, "cost_per_distance_fuel", lambda d: calculate_cost_per_distance(d.get('gas_refuelings', []))),
+            SpritmonitorSensor(coordinator, "consumption_trend_electric", lambda d: calculate_consumption_trend(d.get('electric_charges', []))),
+            SpritmonitorSensor(coordinator, "consumption_consistency_electric", lambda d: calculate_consumption_consistency(d.get('electric_charges', []))),
+            SpritmonitorSensor(coordinator, "avg_refuel_quantity_electric", lambda d: calculate_avg_refuel_quantity(d.get('electric_charges', []))),
+            SpritmonitorSensor(coordinator, "avg_days_between_refuels_electric", lambda d: calculate_avg_days_between_refuels(d.get('electric_charges', []))),
+            SpritmonitorSensor(coordinator, "price_variability_electric", lambda d: calculate_price_variability(d.get('electric_charges', []))),
+            SpritmonitorSensor(coordinator, "eco_driving_index_electric", lambda d: calculate_eco_driving_index(d.get('electric_charges', []), d.get('vehicle', {}).get('consumption'))),
+            SpritmonitorSensor(coordinator, "cost_per_distance_electric", lambda d: calculate_cost_per_distance(d.get('electric_charges', []))),
+        ]
+        all_sensors.extend(phev_calculated_sensors)
+    else:
+        calculated_sensors = [
+            SpritmonitorSensor(coordinator, "consumption_trend", lambda d: calculate_consumption_trend(d.get('refuelings', []))),
+            SpritmonitorSensor(coordinator, "consumption_consistency", lambda d: calculate_consumption_consistency(d.get('refuelings', []))),
+            SpritmonitorSensor(coordinator, "avg_refuel_quantity", lambda d: calculate_avg_refuel_quantity(d.get('refuelings', []))),
+            SpritmonitorSensor(coordinator, "avg_days_between_refuels", lambda d: calculate_avg_days_between_refuels(d.get('refuelings', []))),
+            SpritmonitorSensor(coordinator, "price_variability", lambda d: calculate_price_variability(d.get('refuelings', []))),
+            SpritmonitorSensor(coordinator, "eco_driving_index", lambda d: calculate_eco_driving_index(d.get('refuelings', []), d.get('vehicle', {}).get('consumption'))),
+            SpritmonitorSensor(coordinator, "cost_per_distance", lambda d: calculate_cost_per_distance(d.get('refuelings', []))),
+        ]
+        all_sensors.extend(calculated_sensors)
     
     async_add_entities(all_sensors)
 
@@ -212,13 +225,10 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         self.sensor_id = sensor_id
         self._value_fn = value_fn
         self._vehicle_id = self.coordinator.config_entry.data.get(CONF_VEHICLE_ID)
-        
         self._attr_device_class = kwargs.get("device_class")
         self._attr_state_class = kwargs.get("state_class")
-        
         self._attr_unique_id = f"spritmonitor_{self._vehicle_id}_{self.sensor_id}"
         self._attr_translation_key = self.sensor_id
-        
         if self.sensor_id == "brand_model":
             self._attr_entity_picture = f"https://www.spritmonitor.de/pics/vehicle/{self._vehicle_id}.jpg"
         else:
@@ -226,33 +236,50 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_unit_of_measurement(self) -> str | None:
-        if not self.coordinator.data or not self.coordinator.data.get("units"):
-            return None
-
+        """Return the unit of the sensor, determined dynamically and specifically for each type."""
+        if not self.coordinator.data or not self.coordinator.data.get("units"): return None
+        
         units = self.coordinator.data.get("units", {})
         currency = self.coordinator.config_entry.data.get(CONF_CURRENCY)
+        trip_unit = units.get("trip")
         
-        unit_map = {
-            "total_distance": units.get("trip"), "last_refuel_odometer": units.get("trip"),
-            "last_refuel_trip": units.get("trip"), "last_refuel_cost": currency,
-            "next_service_km": units.get("trip"), "km_to_next_service": units.get("trip"),
-            "fuel_capacity": units.get("quantity"), "total_fuel": units.get("quantity"),
-            "avg_consumption": units.get("consumption"), "last_refuel_quantity": units.get("quantity"),
-            "last_refuel_price_per_liter": f"{currency}/{units.get('quantity')}",
-            "last_refuel_consumption": units.get("consumption"),
-            "fuel_level_estimate": units.get("quantity"), "range_estimate": units.get("trip"),
-            "battery_capacity": UnitOfEnergy.KILO_WATT_HOUR, "total_energy_charged": UnitOfEnergy.KILO_WATT_HOUR,
-            "avg_energy_consumption": units.get("consumption"), "last_charge_energy": UnitOfEnergy.KILO_WATT_HOUR,
-            "last_charge_price_per_kwh": f"{currency}/{UnitOfEnergy.KILO_WATT_HOUR}",
-            "last_charge_consumption": units.get("consumption"), "full_battery_range_estimate": units.get("trip"),
-            "consumption_consistency": units.get("consumption"), "avg_refuel_quantity": units.get("quantity"),
-            "price_variability": f"{currency}/{units.get('quantity')}",
-            "cost_per_distance": f"{currency}/{units.get('trip')}",
-            "ranking_min_consumption": units.get("consumption"),
-            "ranking_avg_consumption": units.get("consumption"),
-        }
-        return unit_map.get(self.sensor_id)
+        # --- LÓGICA DE UNIDADES MEJORADA ---
         
+        # Sensores de Combustión
+        if self.sensor_id in ["fuel_capacity", "total_fuel", "last_refuel_quantity", "fuel_level_estimate", "avg_refuel_quantity_fuel", "avg_refuel_quantity"]:
+            return units.get("quantity")
+        if self.sensor_id in ["avg_consumption", "last_refuel_consumption", "consumption_consistency_fuel", "consumption_consistency"]:
+            return units.get("consumption")
+        if self.sensor_id in ["last_refuel_price_per_liter", "price_variability_fuel", "price_variability"]:
+             return f"{currency}/{units.get('quantity')}"
+
+        # Sensores Eléctricos
+        if self.sensor_id in ["battery_capacity", "total_energy_charged", "last_charge_energy", "avg_refuel_quantity_electric"]:
+            return UnitOfEnergy.KILO_WATT_HOUR
+        if self.sensor_id in ["avg_energy_consumption", "last_charge_consumption", "consumption_consistency_electric"]:
+            # Para PHEVs, el consumo principal puede ser de gasolina, forzamos la unidad correcta para sensores eléctricos
+            return f"kWh/100{trip_unit}" if trip_unit else "kWh/100km"
+        if self.sensor_id in ["last_charge_price_per_kwh", "price_variability_electric"]:
+            return f"{currency}/{UnitOfEnergy.KILO_WATT_HOUR}"
+
+        # Sensores Comunes y Calculados
+        if self.sensor_id in ["total_distance", "last_refuel_odometer", "last_refuel_trip", "km_to_next_service", "next_service_km", "range_estimate", "full_battery_range_estimate"]:
+            return trip_unit
+        if self.sensor_id == "last_refuel_cost":
+            return currency
+        if "cost_per_distance" in self.sensor_id:
+            return f"{currency}/{trip_unit}"
+
+        # Sensores sin unidad
+        if "days" in self.sensor_id: return "days"
+        if "eco_driving_index" in self.sensor_id: return "/10"
+        
+        # Fallback para sensores de ranking que usan la unidad de consumo principal
+        if self.sensor_id in ["ranking_min_consumption", "ranking_avg_consumption"]:
+            return units.get("consumption")
+
+        return None # Devuelve None si no se encuentra ninguna coincidencia
+
     @property
     def device_info(self) -> DeviceInfo:
         device_name = f"Spritmonitor {self._vehicle_id}"
@@ -284,6 +311,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         return self.coordinator.last_update_success and self.coordinator.data is not None
 
     def get_icon(self):
+        base_sensor_id = self.sensor_id.replace('_fuel', '').replace('_electric', '')
         icons = {
             "license_plate": "mdi:card-text", "total_distance": "mdi:speedometer", "last_refuel_date": "mdi:calendar", 
             "last_refuel_odometer": "mdi:speedometer", "last_refuel_trip": "mdi:map-marker-distance",
@@ -301,4 +329,4 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
             "avg_days_between_refuels": "mdi:calendar-range", "price_variability": "mdi:chart-line-variant", 
             "eco_driving_index": "mdi:leaf", "cost_per_distance": "mdi:cash-multiple"
         }
-        return icons.get(self.sensor_id)
+        return icons.get(base_sensor_id)
