@@ -128,7 +128,25 @@ def calculate_full_battery_range(data):
     consumption_per_100km = float(data['vehicle'].get('consumption', 0))
     if capacity <= 0 or consumption_per_100km <= 0: return None
     return round((capacity * 100) / consumption_per_100km)
-
+def calculate_monthly_energy_charged(charges):
+    """Calcula el total de kWh cargados en el mes actual."""
+    if not charges: return None
+    current_month_year = datetime.now().strftime('%m.%Y')
+    total_kwh_this_month = 0.0
+    for charge in charges:
+        try:
+            charge_date_str = charge.get('date')
+            quantity = charge.get('quantity')
+            if not charge_date_str or not quantity:
+                continue
+            charge_date = datetime.strptime(charge_date_str, '%d.%m.%Y')
+            if charge_date.strftime('%m.%Y') == current_month_year:
+                total_kwh_this_month += float(quantity)
+        except (ValueError, TypeError):
+            # Ignora cargas con formato de fecha o cantidad incorrecto
+            continue
+    return round(total_kwh_this_month, 2)
+    
 async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     vehicle_type = config_entry.data.get(CONF_VEHICLE_TYPE)
@@ -182,6 +200,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             SpritmonitorSensor(coordinator, "last_charge_price_per_kwh", lambda d: calculate_price_per_unit(d.get('last_electric_charge', {}).get('cost'), d.get('last_electric_charge', {}).get('quantity')), state_class=SensorStateClass.MEASUREMENT),
             SpritmonitorSensor(coordinator, "last_charge_consumption", lambda d: float(d.get('last_electric_charge', {}).get('consumption', 0)), state_class=SensorStateClass.MEASUREMENT),
             SpritmonitorSensor(coordinator, "full_battery_range_estimate", lambda d: calculate_full_battery_range(d), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT),
+            SpritmonitorSensor(coordinator, "monthly_energy_charged", lambda d: calculate_monthly_energy_charged(d.get('electric_charges', [])), device_class=SensorDeviceClass.ENERGY, state_class=SensorStateClass.TOTAL),
         ]
         all_sensors.extend(electric_sensors)
     
@@ -254,7 +273,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
              return f"{currency}/{units.get('quantity')}"
 
         # Sensores Eléctricos
-        if self.sensor_id in ["battery_capacity", "total_energy_charged", "last_charge_energy", "avg_refuel_quantity_electric"]:
+        if self.sensor_id in ["battery_capacity", "total_energy_charged", "last_charge_energy", "avg_refuel_quantity_electric", "monthly_energy_charged"]:
             return UnitOfEnergy.KILO_WATT_HOUR
         if self.sensor_id in ["avg_energy_consumption", "last_charge_consumption", "consumption_consistency_electric"]:
             # Para PHEVs, el consumo principal puede ser de gasolina, forzamos la unidad correcta para sensores eléctricos
@@ -327,6 +346,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
             "last_charge_consumption": "mdi:car-speed-limiter", "full_battery_range_estimate": "mdi:map-marker-radius", 
             "consumption_trend": "mdi:trending-up", "consumption_consistency": "mdi:chart-bell-curve", "avg_refuel_quantity": "mdi:gas-station-outline", 
             "avg_days_between_refuels": "mdi:calendar-range", "price_variability": "mdi:chart-line-variant", 
-            "eco_driving_index": "mdi:leaf", "cost_per_distance": "mdi:cash-multiple"
+            "eco_driving_index": "mdi:leaf", "cost_per_distance": "mdi:cash-multiple",
+            "monthly_energy_charged": "mdi:calendar-flash"
         }
         return icons.get(base_sensor_id)
