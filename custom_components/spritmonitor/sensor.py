@@ -347,6 +347,6 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
             "consumption_trend": "mdi:trending-up", "consumption_consistency": "mdi:chart-bell-curve", "avg_refuel_quantity": "mdi:gas-station-outline", 
             "avg_days_between_refuels": "mdi:calendar-range", "price_variability": "mdi:chart-line-variant", 
             "eco_driving_index": "mdi:leaf", "cost_per_distance": "mdi:cash-multiple",
-            "monthly_energy_charged": "mdi:calendar-flash"
+            "monthly_energy_charged": "mdi:calendar-month"
         }
         return icons.get(base_sensor_id)
