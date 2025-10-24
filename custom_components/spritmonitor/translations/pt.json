@@ -64,7 +64,8 @@
       "avg_days_between_refuels": { "name": "Dias Médios entre Carregamentos" },
       "price_variability": { "name": "Variabilidade de Preço" },
       "eco_driving_index": { "name": "Índice de Condução Ecológica" },
-      "cost_per_distance": { "name": "Custo por Distância" }
+      "cost_per_distance": { "name": "Custo por Distância" },
+      "monthly_energy_charged": { "name": "Energia Carregada Mensal"}
     }
   },
   "selector": {
