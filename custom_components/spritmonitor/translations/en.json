@@ -72,6 +72,7 @@
       "price_variability_electric": { "name": "Price Variability (Electric)" },
       "eco_driving_index_electric": { "name": "Eco Driving Index (Electric)" },
       "cost_per_distance_electric": { "name": "Cost per Distance (Electric)" },
+      "monthly_energy_charged": { "name": "Monthly Energy Charged"},
       "monthly_energy_charged": { "name": "Monthly Energy Charged"}
     }
   },
