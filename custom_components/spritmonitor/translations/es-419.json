@@ -71,7 +71,8 @@
       "avg_days_between_refuels_electric": { "name": "Días Promedio entre Cargas" },
       "price_variability_electric": { "name": "Variabilidad de Precio (Eléctrico)" },
       "eco_driving_index_electric": { "name": "Índice Eco (Eléctrico)" },
-      "cost_per_distance_electric": { "name": "Costo por Distancia (Eléctrico)" }
+      "cost_per_distance_electric": { "name": "Costo por Distancia (Eléctrico)" },
+      "monthly_energy_charged": { "name": "Monthly Energy Charged"}
     }
   },
   "selector": {
