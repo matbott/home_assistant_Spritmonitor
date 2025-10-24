@@ -59,7 +59,8 @@
       "avg_days_between_refuels": { "name": "Ø-Tage zwischen Lade-/Tankvorgängen" },
       "price_variability": { "name": "Preisvariabilität" },
       "eco_driving_index": { "name": "Öko-Fahrindex" },
-      "cost_per_distance": { "name": "Kosten pro Distanz" }
+      "cost_per_distance": { "name": "Kosten pro Distanz" },
+      "monthly_energy_charged": { "name": "Monatlich Geladene Energie"}
     }
   },
   "selector": {
