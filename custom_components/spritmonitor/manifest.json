@@ -1,5 +1,4 @@
 {
-  "authors": ["matbott"],
   "codeowners": ["@matbott"],
   "config_flow": true,
   "dependencies": [],
