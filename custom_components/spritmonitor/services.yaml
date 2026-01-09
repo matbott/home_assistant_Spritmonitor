@@ -1,0 +1,489 @@
+add_fueling:
+  description: "Add a new fueling for a given vehicle and tank on Spritmonitor"
+  fields:
+
+    vehicle_device:
+      name: Vehicle
+      description: "Select the vehicle device from Home Assistant."
+      required: true
+      selector:
+        device:
+          integration: spritmonitor
+
+    tank_id:
+      name: Tank
+      description: "Select the tank to add fuelings for. For Diesel, Petrol, LPG, Electric, Hydrogen and standard Hybrid vehicles, select 1. For Plug-in Hybrids, the fuel tank is 1 and the battery is 2. For Diesel with AdBlue, Diesel is 1 and AdBlue is 2."
+      required: true
+      example: "1"
+      selector:
+        select:
+          options:
+            - value: "1"
+              label: "1 (Fuel / Battery / Hydrogen)"
+            - value: "2"
+              label: "2 (Hybrid Battery / AdBlue)"
+
+    date:
+      name: Date
+      description: "Date of the fueling to be added."
+      required: true
+      example: "2019-01-15"
+      selector:
+        date:
+
+    trip:
+      name: Trip
+      description: "Trip of the fueling to be added."
+      required: true
+      example: "652.4"
+      selector:
+        text:
+
+    quantity:
+      name: Quantity
+      description: "Amount of fuel of the fueling to be added."
+      required: true
+      example: "45.4"
+      selector:
+        text:
+
+    type:
+      name: Type
+      description: "Type of fueling to be added."
+      required: true
+      example: "full"
+      selector:
+        select:
+          options:
+            - "invalid"
+            - "full"
+            - "notfull"
+            - "first"
+
+    fuelsort_id:
+      name: Fuel Sort
+      description: "Id of the fuelsort of the fueling to be added."
+      required: true
+      example: "1"
+      selector:
+        select:
+          options:
+            - value: "1"
+              label: "Diesel"
+            - value: "2"
+              label: "Biodiesel"
+            - value: "3"
+              label: "Vegetable oil"
+            - value: "4"
+              label: "Premium diesel"
+            - value: "6"
+              label: "Regular gasoline"
+            - value: "7"
+              label: "Gasoline"
+            - value: "8"
+              label: "Premium gasoline"
+            - value: "9"
+              label: "Premium gasoline 100"
+            - value: "12"
+              label: "LPG"
+            - value: "13"
+              label: "CNG H"
+            - value: "14"
+              label: "CNG L"
+            - value: "15"
+              label: "Bioethanol"
+            - value: "16"
+              label: "Two-stroke mixture"
+            - value: "18"
+              label: "Premium gasoline 95"
+            - value: "19"
+              label: "Electricity"
+            - value: "20"
+              label: "E10"
+            - value: "21"
+              label: "AdBlue"
+            - value: "22"
+              label: "Premium gasoline 100+"
+            - value: "23"
+              label: "Hydrogen"
+            - value: "24"
+              label: "Renewable electricity"
+            - value: "25"
+              label: "GTL Diesel"
+            - value: "26"
+              label: "HVO100"
+
+
+    quantity_unit_id:
+      name: Quantity Unit
+      description: "Numerical id of quantity unit:"
+      required: true
+      example: "1"
+      selector:
+        select:
+          options:
+            - value: "1"
+              label: "Liter"
+            - value: "2"
+              label: "Killogram"
+            - value: "3"
+              label: "Gallons (US)"
+            - value: "4"
+              label: "Gallons (UK)"
+            - value: "5"
+              label: "Killowatt hour"
+
+    odometer:
+      name: Odometer
+      description: "Odometer of the fueling to be added."
+      example: "45123"
+      selector:
+        number:
+
+    price:
+      name: Price
+      description: "Price of the fueling to be added."
+      example: "89.4"
+      selector:
+        text:
+
+    currency_id:
+      name: Currency
+      description: "Id of the currency of the fueling to be added."
+      example: "0"
+      selector:
+        select:
+          options:
+            - value: "0"
+              label: "EUR"
+            - value: "1"
+              label: "CHF"
+            - value: "2"
+              label: "USD"
+            - value: "3"
+              label: "CAD"
+            - value: "4"
+              label: "GBP"
+            - value: "5"
+              label: "DKK"
+            - value: "6"
+              label: "NOK"
+            - value: "7"
+              label: "SEK"
+            - value: "8"
+              label: "PLN"
+            - value: "9"
+              label: "SKK"
+            - value: "10"
+              label: "CZK"
+            - value: "11"
+              label: "HUF"
+            - value: "12"
+              label: "SIT"
+            - value: "13"
+              label: "DEM"
+            - value: "14"
+              label: "BRL"
+            - value: "15"
+              label: "HRK"
+            - value: "16"
+              label: "BGN"
+            - value: "17"
+              label: "ARS"
+            - value: "18"
+              label: "CLP"
+            - value: "19"
+              label: "AUD"
+            - value: "20"
+              label: "LTL"
+            - value: "21"
+              label: "LVL"
+            - value: "22"
+              label: "RON"
+            - value: "23"
+              label: "RUB"
+            - value: "24"
+              label: "EEK"
+            - value: "25"
+              label: "ILS"
+            - value: "26"
+              label: "BYR"
+            - value: "27"
+              label: "TRY"
+            - value: "28"
+              label: "SGD"
+            - value: "29"
+              label: "MYR"
+            - value: "30"
+              label: "ISK"
+            - value: "31"
+              label: "YEN"
+            - value: "32"
+              label: "CNY"
+            - value: "33"
+              label: "RSD"
+
+    pricetype:
+      name: Price Type
+      description: "Type of price"
+      example: "0"
+      selector:
+        select:
+          options:
+            - value: "0"
+              label: "total price"
+            - value: "1"
+              label: "unit / liter price"
+
+    note:
+      name: Note
+      description: "Free text note of the user for the fueling to be added."
+      example: "My note for this fueling"
+      selector:
+        text:
+
+    stationname:
+      name: Station Name
+      description: "Gas station company for the fueling to be added."
+      example: "Shell"
+      selector:
+        text:
+
+    location:
+      name: Location
+      description: "Free text location name for the fueling to be added."
+      example: "Moosacher Straße"
+      selector:
+        text:
+
+    country:
+      name: Country
+      description: "Country of the gas station for the fueling to be added."
+      example: "D"
+      selector:
+        select:
+          options:
+            - value: "2"
+              label: "Austria"
+            - value: "35"
+              label: "Andorra"
+            - value: "5"
+              label: "Belgium"
+            - value: "39"
+              label: "Bulgaria"
+            - value: "36"
+              label: "Bosnia and Herzegovina"
+            - value: "6"
+              label: "Canada"
+            - value: "3"
+              label: "Switzerland"
+            - value: "7"
+              label: "Czech Republic"
+            - value: "1"
+              label: "Germany"
+            - value: "8"
+              label: "Denmark"
+            - value: "9"
+              label: "Spain"
+            - value: "38"
+              label: "Estonia"
+            - value: "4"
+              label: "France"
+            - value: "10"
+              label: "Finland"
+            - value: "11"
+              label: "Liechtenstein"
+            - value: "12"
+              label: "United Kingdom"
+            - value: "13"
+              label: "Greece"
+            - value: "14"
+              label: "Hungary"
+            - value: "33"
+              label: "Croatia"
+            - value: "15"
+              label: "Italy"
+            - value: "16"
+              label: "Ireland"
+            - value: "17"
+              label: "Iceland"
+            - value: "18"
+              label: "Luxembourg"
+            - value: "19"
+              label: "Lithuania"
+            - value: "20"
+              label: "Latvia"
+            - value: "21"
+              label: "Malta"
+            - value: "22"
+              label: "Morocco"
+            - value: "23"
+              label: "Monaco"
+            - value: "24"
+              label: "Norway"
+            - value: "25"
+              label: "Netherlands"
+            - value: "26"
+              label: "Portugal"
+            - value: "27"
+              label: "Poland"
+            - value: "28"
+              label: "Romania"
+            - value: "34"
+              label: "Ukraine"
+            - value: "29"
+              label: "Russia"
+            - value: "30"
+              label: "Sweden"
+            - value: "31"
+              label: "Slovakia"
+            - value: "32"
+              label: "Slovenia"
+            - value: "37"
+              label: "Serbia"
+
+    bc_consumption:
+      name: BC Consumption
+      description: "Consumption according to the vehicle's bordcomputer."
+      example: "7.2"
+      selector:
+        text:
+
+    bc_quantity:
+      name: BC Quantity
+      description: "Consumed quantity according to the vehicle's bordcomputer."
+      example: "53.4"
+      selector:
+        text:
+
+    bc_speed:
+      name: BC Speed
+      description: "Average speed according to the vehicle's bordcomputer."
+      example: "53.4"
+      selector:
+        text:
+
+    latitude:
+      name: Latitude
+      description: "Latitude of gas station."
+      example: "48.137154"
+      selector:
+        text:
+
+    longitude:
+      name: Longitude
+      description: "Longitude of gas station."
+      example: "11.576124"
+      selector:
+        text:
+
+    percentage:
+      name: Percentage
+      description: "Charge level of electric vehicle after charging."
+      example: "80"
+      selector:
+        number:
+
+    charging_power:
+      name: Charging Power
+      description: "Charge power in kW used to charge the electric vehicle."
+      example: "11"
+      selector:
+        text:
+
+    charging_duration:
+      name: Charging Duration
+      description: "Duration in minutes that the electric vehicle was charged."
+      example: "195"
+      selector:
+        number:
+
+    charge_info_ac_dc:
+      name: Charge Type
+      description: "Select how the vehicle was charged"
+      required: false
+      example: "ac"
+      selector:
+        select:
+          options:
+            - value: "ac"
+              label: "Vehicle was charged with AC current"
+            - value: "dc"
+              label: "Vehicle was charged with DC current"
+
+    charge_info_source:
+      name: Charge Measurement
+      description: "Select where the charge value was measured"
+      required: false
+      example: "source_wallbox"
+      selector:
+        select:
+          options:
+            - value: "source_wallbox"
+              label: "Charged value measured by wallbox/charger (includes losses)"
+            - value: "source_vehicle"
+              label: "Charged value measured by vehicle (excludes losses)"
+
+    streets:
+      name: Streets
+      description: "Type of street drivren on during the trip."
+      example: "city"
+      selector:
+        select:
+          multiple: true
+          options:
+            - value: "city"
+              label: "City street"
+            - value: "autobahn"
+              label: "Highway"
+            - value: "land"
+              label: "Country road"
+
+    attributes_tires:
+      name: Tires
+      description: "Type of tires used during the trip."
+      example: "summer"
+      selector:
+        select:
+          options:
+            - value: "summertires"
+              label: "Summer tires"
+            - value: "wintertires"
+              label: "Winter tires"
+            - value: "allyeartires"
+              label: "All-season tires"
+
+    attributes_driving_style:
+      name: Driving Style
+      description: "Driving style during the trip."
+      example: "normal"
+      selector:
+        select:
+          options:
+            - value: "slow"
+              label: "Slow"
+            - value: "normal"
+              label: "Normal"
+            - value: "fast"
+              label: "Fast"
+
+    attributes_ac:
+      name: Air Conditioning
+      description: "Select if AC was used during the trip."
+      example: true
+      selector:
+        boolean: {}
+
+    attributes_heating:
+      name: Heating
+      description: "Select if Heating was used during the trip."
+      example: false
+      selector:
+        boolean: {}
+
+    attributes_trailer:
+      name: Trailer
+      description: "Select if Trailer was used during the trip."
+      example: false
+      selector:
+        boolean: {}

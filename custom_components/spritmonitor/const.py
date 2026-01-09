@@ -1,6 +1,8 @@
 # Contenido para: const.py
 
 """Constants for the Spritmonitor integration."""
+import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 
 # Domain for the integration
 DOMAIN = "spritmonitor"
@@ -33,3 +35,42 @@ CONF_CURRENCY = "currency"
 VEHICLE_TYPE_COMBUSTION = "combustion"
 VEHICLE_TYPE_ELECTRIC = "electric"
 VEHICLE_TYPE_PHEV = "phev"
+
+# Service constants
+SERVICE_ADD_FUELING = "add_fueling"
+SERVICE_ADD_FUELING_SCHEMA = vol.Schema(
+    {
+        vol.Required("vehicle_device"): cv.string,
+        vol.Required("tank_id"): vol.Coerce(int),
+        vol.Required("date"): cv.datetime,
+        vol.Required("trip"): vol.Coerce(float),
+        vol.Required("quantity"): vol.Coerce(float),
+        vol.Required("type"): cv.string,
+        vol.Required("fuelsort_id"): vol.Coerce(int),
+        vol.Required("quantity_unit_id"): vol.Coerce(int),
+        vol.Optional("odometer"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("price"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("currency_id"): vol.Any(vol.Coerce(int), None),
+        vol.Optional("pricetype"): vol.Any(vol.Coerce(int), None),
+        vol.Optional("note"): vol.Any(cv.string, None),
+        vol.Optional("stationname"): vol.Any(cv.string, None),
+        vol.Optional("location"): vol.Any(cv.string, None),
+        vol.Optional("country"): vol.Any(cv.string, None),
+        vol.Optional("bc_consumption"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("bc_quantity"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("bc_speed"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("latitude"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("longitude"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("percentage"): vol.Any(vol.Coerce(int), None),
+        vol.Optional("charging_power"): vol.Any(vol.Coerce(float), None),
+        vol.Optional("charging_duration"): vol.Any(vol.Coerce(int), None),
+        vol.Optional("charge_info_ac_dc"): vol.Any(cv.string, None),
+        vol.Optional("charge_info_source"): vol.Any(cv.string, None),
+        vol.Optional("streets"): vol.Any([cv.string], None),
+        vol.Optional("attributes_tires"): vol.Any(cv.string, None),
+        vol.Optional("attributes_driving_style"): vol.Any(cv.string, None),
+        vol.Optional("attributes_ac"): vol.Any(bool, None),
+        vol.Optional("attributes_heating"): vol.Any(bool, None),
+        vol.Optional("attributes_trailer"): vol.Any(bool, None),
+    }
+)

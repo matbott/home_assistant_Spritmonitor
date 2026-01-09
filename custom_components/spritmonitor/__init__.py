@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.const import UnitOfEnergy
+from homeassistant.helpers.typing import ConfigType
 
 from .const import (
     DOMAIN,
@@ -24,7 +25,14 @@ from .const import (
     VEHICLE_TYPE_ELECTRIC
 )
 
+from .services import async_setup_services
+
 _LOGGER = logging.getLogger(__name__)
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """Integration setup."""
+    async_setup_services(hass)
+    return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Spritmonitor from a config entry."""
