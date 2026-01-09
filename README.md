@@ -1,3 +1,8 @@
+Hello, thank you for downloading and using this integration. I appreciate the feedback from each of you. I acknowledge that it has some bugs, but unfortunately, I don't have the time to continue improving it.
+I hope someone else in the community can continue this project and take it to the level it deserves.
+
+Thank you very much.
+
 # Spritmonitor Integration for Home Assistant 🚗⛽
 
 [![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=matbott&repository=home_assistant_Spritmonitor&category=integration)
