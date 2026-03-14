@@ -14,7 +14,6 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# --- (Las funciones de cálculo se mantienen igual) ---
 def calculate_price_per_unit(cost, quantity):
     if not cost or not quantity or float(quantity) == 0: return None
     return round(float(cost) / float(quantity), 3)
@@ -129,7 +128,7 @@ def calculate_full_battery_range(data):
     if capacity <= 0 or consumption_per_100km <= 0: return None
     return round((capacity * 100) / consumption_per_100km)
 def calculate_monthly_energy_charged(charges):
-    """Calcula el total de kWh cargados en el mes actual."""
+    """Calculates total kWh charged in the current month."""
     if not charges: return None
     current_month_year = datetime.now().strftime('%m.%Y')
     total_kwh_this_month = 0.0
@@ -143,17 +142,30 @@ def calculate_monthly_energy_charged(charges):
             if charge_date.strftime('%m.%Y') == current_month_year:
                 total_kwh_this_month += float(quantity)
         except (ValueError, TypeError):
-            # Ignora cargas con formato de fecha o cantidad incorrecto
             continue
     return round(total_kwh_this_month, 2)
-    
+
+def calculate_efficiency_per_distance(data):
+    """Converts kWh/100km (or mi) to km/kWh (or mi/kWh).
+
+    The vehicle's average consumption is stored as kWh/100km (or kWh/100mi).
+    This sensor inverts that to give efficiency as distance-per-kWh (e.g. mi/kWh),
+    which is the format shown on the Spritmonitor /tanks.json endpoint and is often
+    more intuitive for EV drivers familiar with MPGe-style figures.
+    """
+    if not data.get('vehicle'): return None
+    consumption = float(data['vehicle'].get('consumption', 0))
+    if consumption <= 0: return None
+    return round(100 / consumption, 2)
+
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     vehicle_type = config_entry.data.get(CONF_VEHICLE_TYPE)
     
     all_sensors = []
     
-    # Sensores comunes
+    # Common sensors
     all_sensors.extend([
         SpritmonitorSensor(coordinator, "brand_model", lambda d: f"{d['vehicle'].get('make', '')} {d['vehicle'].get('model', '')}"),
         SpritmonitorSensor(coordinator, "license_plate", lambda d: d['vehicle'].get('sign')),
@@ -201,6 +213,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             SpritmonitorSensor(coordinator, "last_charge_consumption", lambda d: float(d.get('last_electric_charge', {}).get('consumption', 0)), state_class=SensorStateClass.MEASUREMENT),
             SpritmonitorSensor(coordinator, "full_battery_range_estimate", lambda d: calculate_full_battery_range(d), device_class=SensorDeviceClass.DISTANCE, state_class=SensorStateClass.MEASUREMENT),
             SpritmonitorSensor(coordinator, "monthly_energy_charged", lambda d: calculate_monthly_energy_charged(d.get('electric_charges', [])), device_class=SensorDeviceClass.ENERGY, state_class=SensorStateClass.TOTAL),
+            # Efficiency expressed as distance-per-kWh (e.g. mi/kWh or km/kWh),
+            # calculated as the inverse of avg_energy_consumption (kWh/100distance).
+            # Equivalent to the 'consumption' field on the Spritmonitor /tanks.json endpoint.
+            SpritmonitorSensor(coordinator, "efficiency_per_distance", lambda d: calculate_efficiency_per_distance(d), state_class=SensorStateClass.MEASUREMENT),
         ]
         all_sensors.extend(electric_sensors)
     
@@ -262,9 +278,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         currency = self.coordinator.config_entry.data.get(CONF_CURRENCY)
         trip_unit = units.get("trip")
         
-        # --- LÓGICA DE UNIDADES MEJORADA ---
-        
-        # Sensores de Combustión
+        # Combustion sensors
         if self.sensor_id in ["fuel_capacity", "total_fuel", "last_refuel_quantity", "fuel_level_estimate", "avg_refuel_quantity_fuel", "avg_refuel_quantity"]:
             return units.get("quantity")
         if self.sensor_id in ["avg_consumption", "last_refuel_consumption", "consumption_consistency_fuel", "consumption_consistency"]:
@@ -272,16 +286,18 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         if self.sensor_id in ["last_refuel_price_per_liter", "price_variability_fuel", "price_variability"]:
              return f"{currency}/{units.get('quantity')}"
 
-        # Sensores Eléctricos
+        # Electric sensors
         if self.sensor_id in ["battery_capacity", "total_energy_charged", "last_charge_energy", "avg_refuel_quantity_electric", "monthly_energy_charged"]:
             return UnitOfEnergy.KILO_WATT_HOUR
         if self.sensor_id in ["avg_energy_consumption", "last_charge_consumption", "consumption_consistency_electric"]:
-            # Para PHEVs, el consumo principal puede ser de gasolina, forzamos la unidad correcta para sensores eléctricos
             return f"kWh/100{trip_unit}" if trip_unit else "kWh/100km"
         if self.sensor_id in ["last_charge_price_per_kwh", "price_variability_electric"]:
             return f"{currency}/{UnitOfEnergy.KILO_WATT_HOUR}"
+        # Distance-per-kWh efficiency (e.g. "mi/kWh" or "km/kWh") — inverse of avg_energy_consumption
+        if self.sensor_id == "efficiency_per_distance":
+            return f"{trip_unit}/{UnitOfEnergy.KILO_WATT_HOUR}" if trip_unit else f"km/{UnitOfEnergy.KILO_WATT_HOUR}"
 
-        # Sensores Comunes y Calculados
+        # Common and calculated sensors
         if self.sensor_id in ["total_distance", "last_refuel_odometer", "last_refuel_trip", "km_to_next_service", "next_service_km", "range_estimate", "full_battery_range_estimate"]:
             return trip_unit
         if self.sensor_id == "last_refuel_cost":
@@ -289,15 +305,13 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
         if "cost_per_distance" in self.sensor_id:
             return f"{currency}/{trip_unit}"
 
-        # Sensores sin unidad
         if "days" in self.sensor_id: return "days"
         if "eco_driving_index" in self.sensor_id: return "/10"
         
-        # Fallback para sensores de ranking que usan la unidad de consumo principal
         if self.sensor_id in ["ranking_min_consumption", "ranking_avg_consumption"]:
             return units.get("consumption")
 
-        return None # Devuelve None si no se encuentra ninguna coincidencia
+        return None
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -347,6 +361,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
             "consumption_trend": "mdi:trending-up", "consumption_consistency": "mdi:chart-bell-curve", "avg_refuel_quantity": "mdi:gas-station-outline", 
             "avg_days_between_refuels": "mdi:calendar-range", "price_variability": "mdi:chart-line-variant", 
             "eco_driving_index": "mdi:leaf", "cost_per_distance": "mdi:cash-multiple",
-            "monthly_energy_charged": "mdi:calendar-month"
+            "monthly_energy_charged": "mdi:calendar-month",
+            "efficiency_per_distance": "mdi:lightning-bolt-circle",
         }
         return icons.get(base_sensor_id)
