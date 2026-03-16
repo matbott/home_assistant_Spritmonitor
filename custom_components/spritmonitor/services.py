@@ -71,6 +71,9 @@ def _validate_position(data: dict) -> None:
         _LOGGER.debug("Position set: %s", data["position"])
     elif lat is not None or lon is not None:
         raise HomeAssistantError("Both latitude and longitude must be provided together.")
+    else:
+        data.pop("position", None)
+        _LOGGER.debug("No position provided, skipping.")
 
 
 def _resolve_config_entry(hass: HomeAssistant, device_id: str):
@@ -111,11 +114,11 @@ def _prepare_base_params(data: dict) -> dict:
         "type": data["type"],
         "fuelsortid": data["fuelsort_id"],
         "quantityunitid": data["quantity_unit_id"],
-        "position": data.get("position"),
     }
 
 
 def _prepare_optional_params(data: dict) -> dict:
+    """Prepare optional parameters for the API call."""
     mapping = {
         "odometer": "odometer",
         "price": "price",
@@ -132,6 +135,7 @@ def _prepare_optional_params(data: dict) -> dict:
         "charging_power": "charging_power",
         "charging_duration": "charging_duration",
         "streets": "streets",
+        "position": "position",
     }
 
     params = {}
