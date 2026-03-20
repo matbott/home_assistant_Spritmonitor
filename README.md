@@ -45,6 +45,9 @@ This integration brings a wealth of data to your dashboard, from average consump
 
 **NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx`
 
+<img width="592" height="228" alt="image" src="https://github.com/user-attachments/assets/728a019d-8d15-487b-b84c-02e79269c5a6" />
+
+
 ## 📈 Sensors Created
 
 All sensors will be grouped under a device named after your vehicle (e.g., `BYD Dolphin`).
@@ -91,6 +94,7 @@ All sensors will be grouped under a device named after your vehicle (e.g., `BYD 
 * Battery Capacity (in `kWh`)
 * Total Energy Charged
 * Average Energy Consumption
+* Average Electric Efficiency (in mi/kWh or km/kWh e.g. 3.4 mi/kWh)
 * Last Charge Energy
 * Last Charge Price/kWh
 * Last Charge Consumption
@@ -113,6 +117,93 @@ When a vehicle is configured as a Plug-in Hybrid, the integration will create **
     * Eco Driving Index
     * Cost per Distance
 * **For PHEV vehicles**, these sensors are created **twice**—once for each fuel type—with clear names to distinguish them (e.g., `Cost per Distance (Fuel)` and `Cost per Distance (Electric)`).
+
+## Sending data back to Sprinmonitor
+This integration allows you to send data back to Spritmonitor. This is useful for example with PHEV/BEV vehicles. You can setup automations for when charging is complete to update SpritMonitor automatically. 
+The following is an example automation that will send daily charge data back to Spritmonitor, including trip since last charge, amount of electricity added etc etc, it will also send a notification to HA Companion App to show charging stats and a persistent notification:
+
+```
+alias: "EV Charging: Session Summary (IOG Friendly)"
+description: Triggers when Ohme finishes and sends a formatted summary with Total Cost.
+triggers:
+  - entity_id: sensor.ohme_home_go_status
+    to: unavailable
+    for:
+      minutes: 2
+    trigger: state
+conditions:
+  - condition: numeric_state
+    entity_id: sensor.ev_charging_energy_today
+    above: 0.1
+actions:
+  - variables:
+      actual_trip: "{{ states('sensor.ev_trip_meter') | float(0) }}"
+      total_cost: "{{ states('sensor.ev_charging_cost_today') | float(0) | round(2) }}"
+  - action: notify.all_devices_james
+    data:
+      title: 🚗 Mazda CX-60 Charged
+      message: >
+        💰 Cost: £{{ "%.2f" | format(total_cost) }}   🔋 Added:
+        {{states('sensor.ev_charging_energy_today') }} kWh   🛣️ Trip: {{
+        actual_trip}} mi  📈 Final SoC: {{
+        states('sensor.mazda_cx_60_charge_level') }}% ⏱️ Time Active: {{
+        states('sensor.ev_charging_time_today') }} 🛣️ Odometer: {{
+        states('sensor.mazda_cx_60_odometer') | float(0) | round(0) }} {{
+        state_attr('sensor.mazda_cx_60_odometer', 'unit_of_measurement') }}
+      data:
+        notification_icon: mdi:car-connected
+        color: "#2ecc71"
+        group: car
+  - action: notify.persistent_notification
+    data:
+      title: 🚗 Mazda CX-60 Charged
+      message: >
+        💰 Cost: £{{ "%.2f" | format(total_cost) }}   🔋 Added:
+        {{states('sensor.ev_charging_energy_today') }} kWh   🛣️ Trip: {{
+        actual_trip}} mi  📈 Final SoC: {{
+        states('sensor.mazda_cx_60_charge_level') }}% ⏱️ Time Active: {{
+        states('sensor.ev_charging_time_today') }} 🛣️ Odometer: {{
+        states('sensor.mazda_cx_60_odometer') | float(0) | round(0) }} {{
+        state_attr('sensor.mazda_cx_60_odometer', 'unit_of_measurement') }}
+      data:
+        notification_icon: mdi:car-connected
+        color: "#2ecc71"
+        group: car
+  - action: spritmonitor.add_fueling
+    data:
+      vehicle_device: da208b77aff3c937ebf0bce607dc4174
+      tank_id: "2"
+      date: "{{ now().strftime('%Y-%m-%d') }}"
+      quantity: "{{ states('sensor.ev_charging_energy_today') | float(0) | round(2) }}"
+      type: >-
+        {{ 'full' if states('sensor.mazda_cx_60_charge_level') | int(0) >= 98
+        else 'notfull' }}
+      fuelsort_id: "19"
+      quantity_unit_id: "5"
+      odometer: "{{ states('sensor.mazda_cx_60_odometer') | int(0) }}"
+      trip: "{{ actual_trip }}"
+      price: "{{ total_cost }}"
+      currency_id: "4"
+      pricetype: "0"
+      percentage: "{{ states('sensor.mazda_cx_60_charge_level') | int(0) }}"
+      charge_info_source: source_wallbox
+      streets:
+        - city
+        - land
+        - autobahn
+      attributes_tires: allyeartires
+      attributes_driving_style: normal
+      attributes_ac: true
+      attributes_heating: true
+  - delay: "00:00:05"
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.odometer_at_last_charge
+    data:
+      value: "{{ states('sensor.mazda_cx_60_odometer') | float(0) }}"
+mode: single
+
+```
 
 ## Troubleshooting
 
