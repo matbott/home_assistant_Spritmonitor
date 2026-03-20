@@ -45,8 +45,7 @@ This integration brings a wealth of data to your dashboard, from average consump
 
 **NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx`
 
-<img width="592" height="228" alt="image" src="https://github.com/user-attachments/assets/728a019d-8d15-487b-b84c-02e79269c5a6" />
-
+![vehicleID](images/VehicleID.png)
 
 ## 📈 Sensors Created
 
