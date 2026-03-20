@@ -118,7 +118,7 @@ When a vehicle is configured as a Plug-in Hybrid, the integration will create **
     * Cost per Distance
 * **For PHEV vehicles**, these sensors are created **twice**—once for each fuel type—with clear names to distinguish them (e.g., `Cost per Distance (Fuel)` and `Cost per Distance (Electric)`).
 
-## Sending data back to Sprinmonitor
+## Sending data back to Spritmonitor
 This integration allows you to send data back to Spritmonitor. This is useful for example with PHEV/BEV vehicles. You can setup automations for when charging is complete to update SpritMonitor automatically. 
 The following is an example automation that will send daily charge data back to Spritmonitor, including trip since last charge, amount of electricity added etc etc, it will also send a notification to HA Companion App to show charging stats and a persistent notification:
 
