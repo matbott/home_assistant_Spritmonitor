@@ -43,7 +43,7 @@ This integration brings a wealth of data to your dashboard, from average consump
 
 **NOTE:** The default Application ID is `095369dede84c55797c22d4854ca6efe`
 
-**NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx`
+**NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx` (inlcuding the 'Bearer '). Create it on the website's password reset page.
 
 ![vehicleID](images/VehicleID.png?raw=true)
 
