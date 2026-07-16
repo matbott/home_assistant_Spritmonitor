@@ -45,6 +45,7 @@ This integration brings a wealth of data to your dashboard, from average consump
 
 **NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx` (inlcuding the 'Bearer '). Create it on the website's password reset page.
 
+**NOTE:** The Vehicle ID is just the number of the vehicle. It is both shown in the vehicle overview and in the breadcrums upon vehicle selection:
 ![vehicleID](images/VehicleID.png?raw=true)
 
 ## 📈 Sensors Created
