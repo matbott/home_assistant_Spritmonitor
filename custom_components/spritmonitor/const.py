@@ -37,6 +37,8 @@ CONF_UPDATE_INTERVAL = "update_interval"
 CONF_VEHICLE_TYPE = "vehicle_type"
 CONF_CURRENCY = "currency"
 
+BEARER_PREFIX = "Bearer "
+
 # Vehicle Types
 VEHICLE_TYPE_COMBUSTION = "combustion"
 VEHICLE_TYPE_ELECTRIC = "electric"

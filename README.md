@@ -43,7 +43,7 @@ This integration brings a wealth of data to your dashboard, from average consump
 
 **NOTE:** The **Application Token** field is prefilled with the default Application ID `095369dede84c55797c22d4854ca6efe` – you usually don't need to change it.
 
-**NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx` (including the 'Bearer '). Create it on the Spritmonitor website under [My account > Change password > API access tokens](https://www.spritmonitor.de/de/mein_account/passwort_aendern.html).
+**NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx`. If you paste only the token, the `Bearer ` prefix is added automatically. Create it on the Spritmonitor website under [My account > Change password > API access tokens](https://www.spritmonitor.de/de/mein_account/passwort_aendern.html).
 
 **NOTE:** The Vehicle ID is just the number of the vehicle. It is both shown in the vehicle overview and in the breadcrums upon vehicle selection:
 ![vehicleID](images/VehicleID.png?raw=true)
