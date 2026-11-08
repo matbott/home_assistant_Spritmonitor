@@ -116,6 +116,7 @@ When a vehicle is configured as a Plug-in Hybrid, the integration will create **
     * Price Variability
     * Eco Driving Index
     * Cost per Distance
+    * Cost per 100 km/mi (same calculation as Cost per Distance, scaled to 100 distance units like on Spritmonitor)
 * **For PHEV vehicles**, these sensors are created **twice**—once for each fuel type—with clear names to distinguish them (e.g., `Cost per Distance (Fuel)` and `Cost per Distance (Electric)`).
 
 ## Sending data back to Spritmonitor

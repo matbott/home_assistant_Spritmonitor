@@ -12,6 +12,9 @@ MANUFACTURER = "matbott & 🤖"
 DEFAULT_APP_TOKEN = "095369dede84c55797c22d4854ca6efe"
 DEFAULT_UPDATE_INTERVAL = 6
 
+# Reference distance for "cost per 100 km/mi" sensors (matches Spritmonitor's own display)
+COST_REFERENCE_DISTANCE = 100
+
 # API Configuration
 API_BASE_URL = "https://api.spritmonitor.de/v1"
 API_VEHICLES_URL = f"{API_BASE_URL}/vehicles.json"

@@ -60,6 +60,7 @@
       "price_variability": { "name": "Preisvariabilität" },
       "eco_driving_index": { "name": "Öko-Fahrindex" },
       "cost_per_distance": { "name": "Kosten pro Distanz" },
+      "cost_per_100_distance": { "name": "Kosten pro 100 km/mi" },
       "monthly_energy_charged": { "name": "Monatlich Geladene Energie"}
     }
   },
