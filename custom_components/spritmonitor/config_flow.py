@@ -11,6 +11,7 @@ from .const import (
     DEFAULT_APP_TOKEN,
     DEFAULT_UPDATE_INTERVAL,
     API_VEHICLES_URL,
+    TOKEN_URL,
     CONF_VEHICLE_ID,
     CONF_APP_TOKEN,
     CONF_BEARER_TOKEN,
@@ -70,7 +71,8 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         })
 
         return self.async_show_form(
-            step_id="user", data_schema=data_schema, errors=errors
+            step_id="user", data_schema=data_schema, errors=errors,
+            description_placeholders={"token_url": TOKEN_URL},
         )
 
     async def _get_vehicle_info(self, session: aiohttp.ClientSession, vehicle_id: int, app_token: str, bearer_token: str) -> dict | None:

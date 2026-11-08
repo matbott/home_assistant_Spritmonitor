@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Spritmonitor konfigurieren",
-        "description": "Gib die Anmeldeinformationen für dein Fahrzeug auf Spritmonitor ein.",
+        "description": "Gib die Anmeldeinformationen für dein Fahrzeug auf Spritmonitor ein. Den Bearer-Token erstellst du auf der Spritmonitor-Website unter [API Zugriffstokens]({token_url}).",
         "data": {
           "vehicle_id": "Fahrzeug-ID",
           "app_token": "Anwendungs-Token",

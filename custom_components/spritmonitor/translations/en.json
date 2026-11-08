@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Configure Spritmonitor",
-        "description": "Enter the credentials for your vehicle on Spritmonitor.",
+        "description": "Enter the credentials for your vehicle on Spritmonitor. Create the Bearer Token on the Spritmonitor website under [API access tokens]({token_url}).",
         "data": {
           "vehicle_id": "Vehicle ID",
           "app_token": "Application Token",
