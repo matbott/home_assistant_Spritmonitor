@@ -38,7 +38,7 @@ This integration brings a wealth of data to your dashboard, from average consump
     * **Vehicle ID**: Your vehicle's ID number from Spritmonitor.
     * **Application Token** and **Bearer Token**.
     * **Vehicle Type**: Select `Combustion`, `Electric`, or `PHEV`. This step is crucial!
-    * **Currency**: Enter your desired currency symbol (e.g., `USD`, `€`, `UYU`).
+    * **Currency**: Enter your desired currency symbol (e.g., `USD`, `€`, `UYU`). Defaults to the currency configured in Home Assistant.
 4.  Click **"Submit"**.
 
 **NOTE:** The default Application ID is `095369dede84c55797c22d4854ca6efe`

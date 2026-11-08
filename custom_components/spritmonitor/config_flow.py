@@ -63,7 +63,7 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 VEHICLE_TYPE_ELECTRIC,
                 VEHICLE_TYPE_PHEV,
             ]),
-            vol.Required(CONF_CURRENCY, default="USD"): str,
+            vol.Required(CONF_CURRENCY, default=self.hass.config.currency): str,
             vol.Required(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): vol.All(
                 vol.Coerce(int), vol.Range(min=1, max=24)
             )
