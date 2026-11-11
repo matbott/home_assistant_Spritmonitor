@@ -14,7 +14,9 @@
           "currency": "Currency Symbol (e.g., $, €)"
         }
       }
-    }
+    },
+    "error": { "invalid_auth": "Authentication failed. Check the Application Token and Bearer Token, and that the Vehicle ID belongs to this account.", "cannot_connect": "Could not connect to Spritmonitor." },
+    "abort": { "already_configured": "This vehicle is already configured." }
   },
   "entity": {
     "sensor": {
@@ -75,7 +77,8 @@
       "eco_driving_index_electric": { "name": "Eco Driving Index (Electric)" },
       "cost_per_distance_electric": { "name": "Cost per Distance (Electric)" },
       "cost_per_100_distance_electric": { "name": "Cost per 100 km/mi (Electric)" },
-      "monthly_energy_charged": { "name": "Monthly Energy Charged"}
+      "monthly_energy_charged": { "name": "Monthly Energy Charged" },
+      "efficiency_per_distance": { "name": "Average Electric Efficiency" }
     }
   },
   "selector": {

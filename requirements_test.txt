@@ -1,0 +1,4 @@
+# Test-only dependencies. Not needed to run the integration.
+# Pinned so the suite runs against a known Home Assistant version (2026.2.x).
+pytest-homeassistant-custom-component==0.13.316
+pytest-cov

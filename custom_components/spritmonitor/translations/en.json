@@ -14,7 +14,9 @@
           "currency": "Currency Symbol (e.g., $, €)"
         }
       }
-    }
+    },
+    "error": { "invalid_auth": "Authentication failed. Check the Application Token and Bearer Token, and that the Vehicle ID belongs to this account.", "cannot_connect": "Could not connect to Spritmonitor." },
+    "abort": { "already_configured": "This vehicle is already configured." }
   },
   "entity": {
     "sensor": {
