@@ -19,6 +19,9 @@ COST_REFERENCE_DISTANCE = 100
 API_BASE_URL = "https://api.spritmonitor.de/v1"
 API_VEHICLES_URL = f"{API_BASE_URL}/vehicles.json"
 API_REMINDERS_URL = f"{API_BASE_URL}/reminders.json"
+API_COSTTYPES_URL = f"{API_BASE_URL}/costtypes.json"
+API_COSTSNOTES_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/costsnotes.json"
+COSTSNOTES_FETCH_LIMIT = 100
 
 # Website page where users create API access tokens (Bearer Token)
 TOKEN_URL = "https://www.spritmonitor.de/de/mein_account/passwort_aendern.html"
