@@ -16,6 +16,9 @@ from .const import (
     API_VEHICLES_URL,
     API_REMINDERS_URL,
     API_FUELINGS_URL_TPL,
+    API_COSTSDISTRIBUTION_URL_TPL,
+    API_COSTSNOTES_URL_TPL,
+    COSTSNOTES_FETCH_LIMIT,
     CONF_VEHICLE_ID,
     CONF_APP_TOKEN,
     CONF_BEARER_TOKEN,
@@ -52,6 +55,48 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     session = async_get_clientsession(hass)
+
+    # Cost type names (e.g. "Service", "Insurance") rarely change, so they are cached and only
+    # fetched again when an entry uses a cost type that is not known yet.
+    cost_types_cache = {}
+
+    def _sm_date_key(entry):
+        try:
+            return datetime.strptime(entry.get('date', ''), '%d.%m.%Y')
+        except (ValueError, TypeError):
+            return datetime.min
+
+    async def _async_fetch_cost_types(costs_notes):
+        used_ids = {str(e['costtype']) for e in costs_notes if e.get('costtype') is not None}
+        if used_ids <= cost_types_cache.keys():
+            return cost_types_cache
+        url = API_COSTSDISTRIBUTION_URL_TPL.format(vehicle_id=vehicle_id)
+        try:
+            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    if isinstance(result, list):
+                        for cost_type in result:
+                            if isinstance(cost_type, dict) and cost_type.get('id') is not None and cost_type.get('name'):
+                                cost_types_cache[str(cost_type['id'])] = cost_type['name']
+        except Exception as e:
+            _LOGGER.debug("Could not fetch cost types: %s", e)
+        return cost_types_cache
+
+    async def _async_fetch_costs_notes():
+        """Fetch the cost/note entries (services, repairs, insurance...). Optional: failures are ignored."""
+        url = API_COSTSNOTES_URL_TPL.format(vehicle_id=vehicle_id)
+        try:
+            async with session.get(f"{url}?limit={COSTSNOTES_FETCH_LIMIT}", headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                if response.status != 200:
+                    return None
+                result = await response.json()
+                if not isinstance(result, list):
+                    return None
+                return sorted([e for e in result if isinstance(e, dict)], key=_sm_date_key, reverse=True)
+        except Exception as e:
+            _LOGGER.debug("Could not fetch costs/notes: %s", e)
+            return None
 
     async def async_update_data():
         """Fetch and process data from the API endpoint."""
@@ -123,7 +168,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             except Exception as e:
                 _LOGGER.debug("Could not fetch reminders: %s", e)
 
+            costs_notes = await _async_fetch_costs_notes()
+            cost_types = await _async_fetch_cost_types(costs_notes) if costs_notes else {}
+
             return {
+                "costs_notes": costs_notes, "cost_types": cost_types,
                 "vehicle": vehicle_info, "units": units, "last_refueling": last_refueling,
                 "refuelings": refuelings, "gas_refuelings": gas_refuelings,
                 "last_gas_refueling": last_gas_refueling, "electric_charges": electric_charges,
