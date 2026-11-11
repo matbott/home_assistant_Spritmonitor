@@ -11,6 +11,8 @@ from .const import (
     DEFAULT_APP_TOKEN,
     DEFAULT_UPDATE_INTERVAL,
     API_VEHICLES_URL,
+    TOKEN_URL,
+    BEARER_PREFIX,
     CONF_VEHICLE_ID,
     CONF_APP_TOKEN,
     CONF_BEARER_TOKEN,
@@ -24,6 +26,13 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+def normalize_bearer_token(token: str) -> str:
+    """Prepend the "Bearer " prefix if the user pasted the raw token only."""
+    token = token.strip()
+    if token.lower().startswith(BEARER_PREFIX.lower()):
+        return token
+    return f"{BEARER_PREFIX}{token}"
+
 class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     _attr_translation_domain = DOMAIN
@@ -32,6 +41,7 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         
         if user_input is not None:
+            user_input[CONF_BEARER_TOKEN] = normalize_bearer_token(user_input[CONF_BEARER_TOKEN])
             try:
                 session = async_get_clientsession(self.hass)
                 vehicle_info = await self._get_vehicle_info(
@@ -63,14 +73,15 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 VEHICLE_TYPE_ELECTRIC,
                 VEHICLE_TYPE_PHEV,
             ]),
-            vol.Required(CONF_CURRENCY, default="USD"): str,
+            vol.Required(CONF_CURRENCY, default=self.hass.config.currency): str,
             vol.Required(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): vol.All(
                 vol.Coerce(int), vol.Range(min=1, max=24)
             )
         })
 
         return self.async_show_form(
-            step_id="user", data_schema=data_schema, errors=errors
+            step_id="user", data_schema=data_schema, errors=errors,
+            description_placeholders={"token_url": TOKEN_URL},
         )
 
     async def _get_vehicle_info(self, session: aiohttp.ClientSession, vehicle_id: int, app_token: str, bearer_token: str) -> dict | None:

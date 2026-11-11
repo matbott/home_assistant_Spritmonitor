@@ -9,7 +9,7 @@ from datetime import datetime
 
 from .const import (
     DOMAIN, MANUFACTURER, CONF_VEHICLE_TYPE, CONF_CURRENCY, 
-    CONF_VEHICLE_ID, VEHICLE_TYPE_COMBUSTION, VEHICLE_TYPE_ELECTRIC, VEHICLE_TYPE_PHEV
+    CONF_VEHICLE_ID, COST_REFERENCE_DISTANCE, VEHICLE_TYPE_COMBUSTION, VEHICLE_TYPE_ELECTRIC, VEHICLE_TYPE_PHEV
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -110,7 +110,7 @@ def calculate_eco_driving_index(refuelings, vehicle_avg_consumption):
     consistency_score = max(0, 10 - consistency * 5)
     eco_index = (performance_score * 0.7 + consistency_score * 0.3)
     return round(eco_index, 1)
-def calculate_cost_per_distance(refuelings):
+def calculate_cost_per_distance(refuelings, per_distance=1):
     if not refuelings or len(refuelings) < 2: return None
     total_cost, total_trip = 0.0, 0.0
     for r in refuelings[:10]:
@@ -120,7 +120,7 @@ def calculate_cost_per_distance(refuelings):
             total_cost += float(cost)
             total_trip += float(trip)
     if total_trip == 0: return None
-    return round(total_cost / total_trip, 2)
+    return round(total_cost / total_trip * per_distance, 2)
 def calculate_full_battery_range(data):
     if not data.get('vehicle'): return None
     capacity = float(data['vehicle'].get('capacity', 0))
@@ -229,6 +229,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             SpritmonitorSensor(coordinator, "price_variability_fuel", lambda d: calculate_price_variability(d.get('gas_refuelings', []))),
             SpritmonitorSensor(coordinator, "eco_driving_index_fuel", lambda d: calculate_eco_driving_index(d.get('gas_refuelings', []), d.get('vehicle', {}).get('consumption'))),
             SpritmonitorSensor(coordinator, "cost_per_distance_fuel", lambda d: calculate_cost_per_distance(d.get('gas_refuelings', []))),
+            SpritmonitorSensor(coordinator, "cost_per_100_distance_fuel", lambda d: calculate_cost_per_distance(d.get('gas_refuelings', []), COST_REFERENCE_DISTANCE)),
             SpritmonitorSensor(coordinator, "consumption_trend_electric", lambda d: calculate_consumption_trend(d.get('electric_charges', []))),
             SpritmonitorSensor(coordinator, "consumption_consistency_electric", lambda d: calculate_consumption_consistency(d.get('electric_charges', []))),
             SpritmonitorSensor(coordinator, "avg_refuel_quantity_electric", lambda d: calculate_avg_refuel_quantity(d.get('electric_charges', []))),
@@ -236,6 +237,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             SpritmonitorSensor(coordinator, "price_variability_electric", lambda d: calculate_price_variability(d.get('electric_charges', []))),
             SpritmonitorSensor(coordinator, "eco_driving_index_electric", lambda d: calculate_eco_driving_index(d.get('electric_charges', []), d.get('vehicle', {}).get('consumption'))),
             SpritmonitorSensor(coordinator, "cost_per_distance_electric", lambda d: calculate_cost_per_distance(d.get('electric_charges', []))),
+            SpritmonitorSensor(coordinator, "cost_per_100_distance_electric", lambda d: calculate_cost_per_distance(d.get('electric_charges', []), COST_REFERENCE_DISTANCE)),
         ]
         all_sensors.extend(phev_calculated_sensors)
     else:
@@ -247,6 +249,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             SpritmonitorSensor(coordinator, "price_variability", lambda d: calculate_price_variability(d.get('refuelings', []))),
             SpritmonitorSensor(coordinator, "eco_driving_index", lambda d: calculate_eco_driving_index(d.get('refuelings', []), d.get('vehicle', {}).get('consumption'))),
             SpritmonitorSensor(coordinator, "cost_per_distance", lambda d: calculate_cost_per_distance(d.get('refuelings', []))),
+            SpritmonitorSensor(coordinator, "cost_per_100_distance", lambda d: calculate_cost_per_distance(d.get('refuelings', []), COST_REFERENCE_DISTANCE)),
         ]
         all_sensors.extend(calculated_sensors)
     
@@ -302,6 +305,8 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
             return trip_unit
         if self.sensor_id == "last_refuel_cost":
             return currency
+        if "cost_per_100_distance" in self.sensor_id:
+            return f"{currency}/{COST_REFERENCE_DISTANCE}{trip_unit}"
         if "cost_per_distance" in self.sensor_id:
             return f"{currency}/{trip_unit}"
 
@@ -360,7 +365,7 @@ class SpritmonitorSensor(CoordinatorEntity, SensorEntity):
             "last_charge_consumption": "mdi:car-speed-limiter", "full_battery_range_estimate": "mdi:map-marker-radius", 
             "consumption_trend": "mdi:trending-up", "consumption_consistency": "mdi:chart-bell-curve", "avg_refuel_quantity": "mdi:gas-station-outline", 
             "avg_days_between_refuels": "mdi:calendar-range", "price_variability": "mdi:chart-line-variant", 
-            "eco_driving_index": "mdi:leaf", "cost_per_distance": "mdi:cash-multiple",
+            "eco_driving_index": "mdi:leaf", "cost_per_distance": "mdi:cash-multiple", "cost_per_100_distance": "mdi:cash-multiple",
             "monthly_energy_charged": "mdi:calendar-month",
             "efficiency_per_distance": "mdi:lightning-bolt-circle",
         }

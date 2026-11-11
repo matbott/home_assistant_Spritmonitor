@@ -38,12 +38,12 @@ This integration brings a wealth of data to your dashboard, from average consump
     * **Vehicle ID**: Your vehicle's ID number from Spritmonitor.
     * **Application Token** and **Bearer Token**.
     * **Vehicle Type**: Select `Combustion`, `Electric`, or `PHEV`. This step is crucial!
-    * **Currency**: Enter your desired currency symbol (e.g., `USD`, `€`, `UYU`).
+    * **Currency**: Enter your desired currency symbol (e.g., `USD`, `€`, `UYU`). Defaults to the currency configured in Home Assistant.
 4.  Click **"Submit"**.
 
-**NOTE:** The default Application ID is `095369dede84c55797c22d4854ca6efe`
+**NOTE:** The **Application Token** field is prefilled with the default Application ID `095369dede84c55797c22d4854ca6efe` – you usually don't need to change it.
 
-**NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx` (inlcuding the 'Bearer '). Create it on the website's password reset page.
+**NOTE:** The Bearer Token format is `Bearer xxxxxxxxxxxxxxxxxx`. If you paste only the token, the `Bearer ` prefix is added automatically. Create it on the Spritmonitor website under [My account > Change password > API access tokens](https://www.spritmonitor.de/de/mein_account/passwort_aendern.html).
 
 **NOTE:** The Vehicle ID is just the number of the vehicle. It is both shown in the vehicle overview and in the breadcrums upon vehicle selection:
 ![vehicleID](images/VehicleID.png?raw=true)
@@ -116,6 +116,7 @@ When a vehicle is configured as a Plug-in Hybrid, the integration will create **
     * Price Variability
     * Eco Driving Index
     * Cost per Distance
+    * Cost per 100 km/mi (same calculation as Cost per Distance, scaled to 100 distance units like on Spritmonitor)
 * **For PHEV vehicles**, these sensors are created **twice**—once for each fuel type—with clear names to distinguish them (e.g., `Cost per Distance (Fuel)` and `Cost per Distance (Electric)`).
 
 ## Sending data back to Spritmonitor

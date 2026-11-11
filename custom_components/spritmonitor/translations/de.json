@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Spritmonitor konfigurieren",
-        "description": "Gib die Anmeldeinformationen für dein Fahrzeug auf Spritmonitor ein.",
+        "description": "Gib die Anmeldeinformationen für dein Fahrzeug auf Spritmonitor ein. Den Bearer-Token erstellst du auf der Spritmonitor-Website unter [API Zugriffstokens]({token_url}).",
         "data": {
           "vehicle_id": "Fahrzeug-ID",
           "app_token": "Anwendungs-Token",
@@ -60,6 +60,7 @@
       "price_variability": { "name": "Preisvariabilität" },
       "eco_driving_index": { "name": "Öko-Fahrindex" },
       "cost_per_distance": { "name": "Kosten pro Distanz" },
+      "cost_per_100_distance": { "name": "Kosten pro 100 km/mi" },
       "monthly_energy_charged": { "name": "Monatlich Geladene Energie"}
     }
   },
