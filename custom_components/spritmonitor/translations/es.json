@@ -80,7 +80,8 @@
       "eco_driving_index_electric": { "name": "Índice Eco (Eléctrico)" },
       "cost_per_distance_electric": { "name": "Costo por Distancia (Eléctrico)" },
       "cost_per_100_distance_electric": { "name": "Costo por 100 km/mi (Eléctrico)" },
-      "monthly_energy_charged": { "name": "Energía Cargada Mensual"}
+      "monthly_energy_charged": { "name": "Energía Cargada Mensual"},
+      "efficiency_per_distance": { "name": "Eficiencia Eléctrica Promedio" }
     }
   },
   "selector": {
