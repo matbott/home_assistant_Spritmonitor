@@ -78,6 +78,29 @@ All sensors will be grouped under a device named after your vehicle (e.g., `BYD 
 * Next Service Date
 * Kilometers to Next Service
 
+#### 🧾 Latest Cost/Note Entry
+Based on the entries in Spritmonitor's **Costs/Notes** section (services, repairs, insurance, tyres…):
+* Last Cost Entry Date
+* Last Cost Entry Odometer
+* Last Cost Entry Note
+
+These three sensors share the same attributes:
+* `cost_type` and `cost` of the latest entry (the cost in your Spritmonitor currency)
+* `repeat_interval_months` for recurring expenses
+* `latest_by_type`: the latest entry of **each** cost type with its `date`, `odometer` and `note`, e.g. your last *Service*. Cost type names are in the language of your Spritmonitor account.
+
+For example, a template sensor for the distance since your last service (replace the entity IDs with yours; the distance is in your vehicle's unit, km or mi):
+
+```yaml
+template:
+  - sensor:
+      - name: "Distance since last service"
+        state: >
+          {% set service = (state_attr('sensor.vw_golf_last_cost_entry_note', 'latest_by_type') or {}).get('Service') %}
+          {% set odometer = states('sensor.vw_golf_last_charge_refuel_odometer') | float(0) %}
+          {{ (odometer - service.odometer) | round(0) if service and service.odometer and odometer else none }}
+```
+
 ---
 
 #### 🔥 Specific Sensors (if type is Combustion)
@@ -99,6 +122,7 @@ All sensors will be grouped under a device named after your vehicle (e.g., `BYD 
 * Last Charge Price/kWh
 * Last Charge Consumption
 * Full Battery Range Estimate
+* Monthly Energy Charged (energy charged so far this calendar month)
 
 ---
 
@@ -214,6 +238,16 @@ mode: single
 ## 🤝 Contributions
 
 Contributions are welcome! Feel free to open an issue or submit a pull request.
+
+### Running the tests
+The integration has an automated test suite that runs on every pull request. To run it locally (Python 3.13):
+
+```bash
+pip install -r requirements_test.txt
+pytest
+```
+
+The tests never call the real Spritmonitor API; responses are mocked from the [API description](https://api.spritmonitor.de/doc). When you add a sensor, add its name to `strings.json` and every file in `translations/`; a test checks that no language is missing a text.
 
 ## License
 
