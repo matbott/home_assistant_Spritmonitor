@@ -22,7 +22,8 @@ from .const import (
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
     CONF_VEHICLE_TYPE,
-    VEHICLE_TYPE_ELECTRIC
+    VEHICLE_TYPE_ELECTRIC,
+    API_TANKS_URL_TPL,
 )
 
 from .services import async_setup_services
@@ -100,6 +101,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 refuelings = gas_refuelings
             last_refueling = refuelings[0] if refuelings else None
 
+            # Lifetime totals per tank. Optional: without them the cost sensors fall back to
+            # the recent fuelings.
+            tanks = None
+            try:
+                tanks_url = API_TANKS_URL_TPL.format(vehicle_id=vehicle_id)
+                async with session.get(tanks_url, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        if isinstance(result, list):
+                            tanks = [t for t in result if isinstance(t, dict)]
+            except Exception as e:
+                _LOGGER.debug("Could not fetch tanks: %s", e)
+
             reminders = None
             try:
                 async with session.get(API_REMINDERS_URL, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
@@ -114,6 +128,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 "refuelings": refuelings, "gas_refuelings": gas_refuelings,
                 "last_gas_refueling": last_gas_refueling, "electric_charges": electric_charges,
                 "last_electric_charge": last_electric_charge, "reminders": reminders,
+                "tanks": tanks,
             }
         except aiohttp.ClientError as e:
             raise UpdateFailed(f"Connection error with Spritmonitor: {e}")
