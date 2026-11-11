@@ -9,7 +9,7 @@ from datetime import datetime
 
 from .const import (
     DOMAIN, MANUFACTURER, CONF_VEHICLE_TYPE, CONF_CURRENCY, 
-    CONF_VEHICLE_ID, COST_REFERENCE_DISTANCE, VEHICLE_TYPE_COMBUSTION, VEHICLE_TYPE_ELECTRIC, VEHICLE_TYPE_PHEV
+    CONF_VEHICLE_ID, COST_REFERENCE_DISTANCE, TANK_TYPE_ELECTRICITY, TANK_TYPE_ADBLUE, VEHICLE_TYPE_COMBUSTION, VEHICLE_TYPE_ELECTRIC, VEHICLE_TYPE_PHEV
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -110,17 +110,45 @@ def calculate_eco_driving_index(refuelings, vehicle_avg_consumption):
     consistency_score = max(0, 10 - consistency * 5)
     eco_index = (performance_score * 0.7 + consistency_score * 0.3)
     return round(eco_index, 1)
-def calculate_cost_per_distance(refuelings, per_distance=1):
+def get_tank(data, kind):
+    """Return the tank from tanks.json for kind 'main', 'fuel' or 'electric'."""
+    tanks = data.get('tanks') or []
+    if kind == 'main':
+        main_id = (data.get('vehicle') or {}).get('maintank')
+        try:
+            return next((t for t in tanks if int(t.get('id')) == int(main_id)), None)
+        except (TypeError, ValueError):
+            return None
+    if kind == 'electric':
+        return next((t for t in tanks if t.get('fuelsorttype') == TANK_TYPE_ELECTRICITY), None)
+    return next((t for t in tanks if t.get('fuelsorttype') not in (TANK_TYPE_ELECTRICITY, TANK_TYPE_ADBLUE)), None)
+def calculate_cost_per_distance(refuelings, per_distance=1, tank=None):
+    """Fuel/charging cost per distance unit (or per 100 with per_distance=100).
+
+    Uses the tank's lifetime totals from tanks.json (costsum over costtripsum, the distance the
+    costs were summed for), which is what Spritmonitor itself shows. Falls back to the latest
+    fuelings when the tank totals are not available.
+    """
+    decimals = 2 if per_distance >= 100 else 4
+    if tank:
+        try:
+            cost_sum = float(tank.get('costsum') or 0)
+            cost_trip_sum = float(tank.get('costtripsum') or 0)
+        except (TypeError, ValueError):
+            cost_sum = cost_trip_sum = 0
+        if cost_sum > 0 and cost_trip_sum > 0:
+            return round(cost_sum / cost_trip_sum * per_distance, decimals)
     if not refuelings or len(refuelings) < 2: return None
     total_cost, total_trip = 0.0, 0.0
     for r in refuelings[:10]:
-        cost = r.get('cost')
+        # cost_converted is in the user's currency, cost in the currency the entry was made in
+        cost = r.get('cost_converted', r.get('cost'))
         trip = r.get('trip')
         if cost and trip and float(trip) > 0:
             total_cost += float(cost)
             total_trip += float(trip)
     if total_trip == 0: return None
-    return round(total_cost / total_trip * per_distance, 2)
+    return round(total_cost / total_trip * per_distance, decimals)
 def calculate_full_battery_range(data):
     if not data.get('vehicle'): return None
     capacity = float(data['vehicle'].get('capacity', 0))
@@ -228,16 +256,16 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             SpritmonitorSensor(coordinator, "avg_days_between_refuels_fuel", lambda d: calculate_avg_days_between_refuels(d.get('gas_refuelings', []))),
             SpritmonitorSensor(coordinator, "price_variability_fuel", lambda d: calculate_price_variability(d.get('gas_refuelings', []))),
             SpritmonitorSensor(coordinator, "eco_driving_index_fuel", lambda d: calculate_eco_driving_index(d.get('gas_refuelings', []), d.get('vehicle', {}).get('consumption'))),
-            SpritmonitorSensor(coordinator, "cost_per_distance_fuel", lambda d: calculate_cost_per_distance(d.get('gas_refuelings', []))),
-            SpritmonitorSensor(coordinator, "cost_per_100_distance_fuel", lambda d: calculate_cost_per_distance(d.get('gas_refuelings', []), COST_REFERENCE_DISTANCE)),
+            SpritmonitorSensor(coordinator, "cost_per_distance_fuel", lambda d: calculate_cost_per_distance(d.get('gas_refuelings', []), tank=get_tank(d, 'fuel'))),
+            SpritmonitorSensor(coordinator, "cost_per_100_distance_fuel", lambda d: calculate_cost_per_distance(d.get('gas_refuelings', []), COST_REFERENCE_DISTANCE, tank=get_tank(d, 'fuel'))),
             SpritmonitorSensor(coordinator, "consumption_trend_electric", lambda d: calculate_consumption_trend(d.get('electric_charges', []))),
             SpritmonitorSensor(coordinator, "consumption_consistency_electric", lambda d: calculate_consumption_consistency(d.get('electric_charges', []))),
             SpritmonitorSensor(coordinator, "avg_refuel_quantity_electric", lambda d: calculate_avg_refuel_quantity(d.get('electric_charges', []))),
             SpritmonitorSensor(coordinator, "avg_days_between_refuels_electric", lambda d: calculate_avg_days_between_refuels(d.get('electric_charges', []))),
             SpritmonitorSensor(coordinator, "price_variability_electric", lambda d: calculate_price_variability(d.get('electric_charges', []))),
             SpritmonitorSensor(coordinator, "eco_driving_index_electric", lambda d: calculate_eco_driving_index(d.get('electric_charges', []), d.get('vehicle', {}).get('consumption'))),
-            SpritmonitorSensor(coordinator, "cost_per_distance_electric", lambda d: calculate_cost_per_distance(d.get('electric_charges', []))),
-            SpritmonitorSensor(coordinator, "cost_per_100_distance_electric", lambda d: calculate_cost_per_distance(d.get('electric_charges', []), COST_REFERENCE_DISTANCE)),
+            SpritmonitorSensor(coordinator, "cost_per_distance_electric", lambda d: calculate_cost_per_distance(d.get('electric_charges', []), tank=get_tank(d, 'electric'))),
+            SpritmonitorSensor(coordinator, "cost_per_100_distance_electric", lambda d: calculate_cost_per_distance(d.get('electric_charges', []), COST_REFERENCE_DISTANCE, tank=get_tank(d, 'electric'))),
         ]
         all_sensors.extend(phev_calculated_sensors)
     else:
@@ -248,8 +276,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             SpritmonitorSensor(coordinator, "avg_days_between_refuels", lambda d: calculate_avg_days_between_refuels(d.get('refuelings', []))),
             SpritmonitorSensor(coordinator, "price_variability", lambda d: calculate_price_variability(d.get('refuelings', []))),
             SpritmonitorSensor(coordinator, "eco_driving_index", lambda d: calculate_eco_driving_index(d.get('refuelings', []), d.get('vehicle', {}).get('consumption'))),
-            SpritmonitorSensor(coordinator, "cost_per_distance", lambda d: calculate_cost_per_distance(d.get('refuelings', []))),
-            SpritmonitorSensor(coordinator, "cost_per_100_distance", lambda d: calculate_cost_per_distance(d.get('refuelings', []), COST_REFERENCE_DISTANCE)),
+            SpritmonitorSensor(coordinator, "cost_per_distance", lambda d: calculate_cost_per_distance(d.get('refuelings', []), tank=get_tank(d, 'main'))),
+            SpritmonitorSensor(coordinator, "cost_per_100_distance", lambda d: calculate_cost_per_distance(d.get('refuelings', []), COST_REFERENCE_DISTANCE, tank=get_tank(d, 'main'))),
         ]
         all_sensors.extend(calculated_sensors)
     

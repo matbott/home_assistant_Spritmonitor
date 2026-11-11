@@ -25,6 +25,12 @@ TOKEN_URL = "https://www.spritmonitor.de/de/mein_account/passwort_aendern.html"
 
 # --- URL DE FUELINGS CORREGIDA (VUELTA A LA ORIGINAL) ---
 API_FUELINGS_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/fuelings.json"
+# Per-tank lifetime totals, incl. costsum / costtripsum used for the cost per distance sensors
+API_TANKS_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/tanks.json"
+
+# Tank fuelsorttype ids (see tank schema in the Spritmonitor API)
+TANK_TYPE_ELECTRICITY = 5
+TANK_TYPE_ADBLUE = 6
 
 # --- LÍNEA ANTIGUA ELIMINADA ---
 # API_FUELINGS_URL = f"{API_BASE_URL}/fuelings.json"
