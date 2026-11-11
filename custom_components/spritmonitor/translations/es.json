@@ -14,7 +14,9 @@
           "currency": "Símbolo de Moneda (ej. $, €)"
         }
       }
-    }
+    },
+    "error": { "invalid_auth": "Error de autenticación. Revisa los tokens y que el ID del vehículo pertenezca a esta cuenta.", "cannot_connect": "No se pudo conectar con Spritmonitor." },
+    "abort": { "already_configured": "Este vehículo ya está configurado." }
   },
   "entity": {
     "sensor": {

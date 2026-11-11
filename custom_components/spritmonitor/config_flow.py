@@ -42,6 +42,10 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         
         if user_input is not None:
             user_input[CONF_BEARER_TOKEN] = normalize_bearer_token(user_input[CONF_BEARER_TOKEN])
+            # Checked before the try block: the abort it raises must not be caught as a
+            # connection error below.
+            await self.async_set_unique_id(f"spritmonitor_{user_input[CONF_VEHICLE_ID]}")
+            self._abort_if_unique_id_configured()
             try:
                 session = async_get_clientsession(self.hass)
                 vehicle_info = await self._get_vehicle_info(
@@ -51,9 +55,6 @@ class SpritmonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     make = vehicle_info.get("make", "")
                     model = vehicle_info.get("model", "")
                     title = f"{make} {model}".strip() if make and model else f"Spritmonitor Vehicle {user_input[CONF_VEHICLE_ID]}"
-                    
-                    await self.async_set_unique_id(f"spritmonitor_{user_input[CONF_VEHICLE_ID]}")
-                    self._abort_if_unique_id_configured()
                     return self.async_create_entry(title=title, data=user_input)
                 else:
                     errors["base"] = "invalid_auth"
