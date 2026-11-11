@@ -22,6 +22,27 @@ def test_setup_messages_present(path):
     assert "already_configured" in config["abort"]
 
 
+def _flat_keys(data, prefix=""):
+    keys = set()
+    for key, value in data.items():
+        if isinstance(value, dict):
+            keys |= _flat_keys(value, f"{prefix}{key}.")
+        else:
+            keys.add(f"{prefix}{key}")
+    return keys
+
+
+@pytest.mark.parametrize(
+    "path", [p for p in TRANSLATION_FILES if p.name not in ("strings.json", "en.json")], ids=lambda p: p.name
+)
+def test_translation_has_every_english_key(path):
+    """Every language has a text for everything English has, so nothing falls back to English."""
+    english = _flat_keys(load(COMPONENT / "translations" / "en.json"))
+    translated = _flat_keys(load(path))
+    assert sorted(english - translated) == []
+    assert sorted(translated - english) == []
+
+
 def test_strings_json_matches_english():
     """strings.json is the source of the English texts; the two must not drift apart."""
     assert load(COMPONENT / "strings.json") == load(COMPONENT / "translations" / "en.json")
