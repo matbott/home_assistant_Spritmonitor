@@ -1,0 +1,44 @@
+name: Release
+
+# Attaches spritmonitor.zip to every published release. Home Assistant's Marketplace (formerly
+# HACS) installs from this zip (zip_release in hacs.json), so its download count shows how often
+# each version is installed or updated.
+#
+# It can also be run by hand from the Actions tab to add the zip to an existing release
+# that was published without one.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag of the existing release to attach the zip to (e.g. 4.7.0-beta.1)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Create spritmonitor.zip
+        # The integration's files go at the root of the zip, as the Marketplace expects.
+        run: |
+          cd custom_components/spritmonitor
+          zip -r ../../spritmonitor.zip . -x "__pycache__/*" "*.pyc"
+          cd ../..
+          unzip -l spritmonitor.zip
+
+      - name: Attach the zip to the release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.TAG }}
+          files: spritmonitor.zip
