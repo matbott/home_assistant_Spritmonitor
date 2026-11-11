@@ -16,7 +16,7 @@ from .const import (
     API_VEHICLES_URL,
     API_REMINDERS_URL,
     API_FUELINGS_URL_TPL,
-    API_COSTTYPES_URL,
+    API_COSTSDISTRIBUTION_URL_TPL,
     API_COSTSNOTES_URL_TPL,
     COSTSNOTES_FETCH_LIMIT,
     CONF_VEHICLE_ID,
@@ -55,7 +55,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     session = async_get_clientsession(hass)
 
-    # Cost type names (e.g. "Service", "Insurance") rarely change, so fetch them once and reuse.
+    # Cost type names (e.g. "Service", "Insurance") rarely change, so they are cached and only
+    # fetched again when an entry uses a cost type that is not known yet.
     cost_types_cache = {}
 
     def _sm_date_key(entry):
@@ -64,11 +65,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         except (ValueError, TypeError):
             return datetime.min
 
-    async def _async_fetch_cost_types():
-        if cost_types_cache:
+    async def _async_fetch_cost_types(costs_notes):
+        used_ids = {str(e['costtype']) for e in costs_notes if e.get('costtype') is not None}
+        if used_ids <= cost_types_cache.keys():
             return cost_types_cache
+        url = API_COSTSDISTRIBUTION_URL_TPL.format(vehicle_id=vehicle_id)
         try:
-            async with session.get(API_COSTTYPES_URL, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
+            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=30)) as response:
                 if response.status == 200:
                     result = await response.json()
                     if isinstance(result, list):
@@ -152,7 +155,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.debug("Could not fetch reminders: %s", e)
 
             costs_notes = await _async_fetch_costs_notes()
-            cost_types = await _async_fetch_cost_types() if costs_notes else {}
+            cost_types = await _async_fetch_cost_types(costs_notes) if costs_notes else {}
 
             return {
                 "costs_notes": costs_notes, "cost_types": cost_types,

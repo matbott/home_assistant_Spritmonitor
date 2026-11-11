@@ -193,10 +193,12 @@ def cost_notes_by_type(data):
 def cost_note_attributes(data):
     entry = get_last_cost_note(data)
     if not entry: return None
-    cost = entry.get('cost', entry.get('price'))
+    # cost_converted is in the user's Spritmonitor currency; cost is in the currency it was entered in
+    cost = entry.get('cost_converted', entry.get('cost'))
     return {
         "cost_type": _cost_note_type_name(data, entry),
         "cost": format_cost(cost) if cost not in (None, '') else None,
+        "repeat_interval_months": entry.get('repeatinterval') or None,
         "latest_by_type": cost_notes_by_type(data),
     }
 

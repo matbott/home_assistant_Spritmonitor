@@ -19,7 +19,9 @@ COST_REFERENCE_DISTANCE = 100
 API_BASE_URL = "https://api.spritmonitor.de/v1"
 API_VEHICLES_URL = f"{API_BASE_URL}/vehicles.json"
 API_REMINDERS_URL = f"{API_BASE_URL}/reminders.json"
-API_COSTTYPES_URL = f"{API_BASE_URL}/costtypes.json"
+# Lifetime costs grouped by cost type; its names are translated into the user's language
+# (costtypes.json only returns German names).
+API_COSTSDISTRIBUTION_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/costsdistribution.json"
 API_COSTSNOTES_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/costsnotes.json"
 COSTSNOTES_FETCH_LIMIT = 100
 
