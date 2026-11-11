@@ -12,13 +12,30 @@ MANUFACTURER = "matbott & 🤖"
 DEFAULT_APP_TOKEN = "095369dede84c55797c22d4854ca6efe"
 DEFAULT_UPDATE_INTERVAL = 6
 
+# Reference distance for "cost per 100 km/mi" sensors (matches Spritmonitor's own display)
+COST_REFERENCE_DISTANCE = 100
+
 # API Configuration
 API_BASE_URL = "https://api.spritmonitor.de/v1"
 API_VEHICLES_URL = f"{API_BASE_URL}/vehicles.json"
 API_REMINDERS_URL = f"{API_BASE_URL}/reminders.json"
+# Lifetime costs grouped by cost type; its names are translated into the user's language
+# (costtypes.json only returns German names).
+API_COSTSDISTRIBUTION_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/costsdistribution.json"
+API_COSTSNOTES_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/costsnotes.json"
+COSTSNOTES_FETCH_LIMIT = 100
+
+# Website page where users create API access tokens (Bearer Token)
+TOKEN_URL = "https://www.spritmonitor.de/de/mein_account/passwort_aendern.html"
 
 # --- URL DE FUELINGS CORREGIDA (VUELTA A LA ORIGINAL) ---
 API_FUELINGS_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/fuelings.json"
+# Per-tank lifetime totals, incl. costsum / costtripsum used for the cost per distance sensors
+API_TANKS_URL_TPL = f"{API_BASE_URL}/vehicle/{{vehicle_id}}/tanks.json"
+
+# Tank fuelsorttype ids (see tank schema in the Spritmonitor API)
+TANK_TYPE_ELECTRICITY = 5
+TANK_TYPE_ADBLUE = 6
 
 # --- LÍNEA ANTIGUA ELIMINADA ---
 # API_FUELINGS_URL = f"{API_BASE_URL}/fuelings.json"
@@ -30,6 +47,8 @@ CONF_BEARER_TOKEN = "bearer_token"
 CONF_UPDATE_INTERVAL = "update_interval"
 CONF_VEHICLE_TYPE = "vehicle_type"
 CONF_CURRENCY = "currency"
+
+BEARER_PREFIX = "Bearer "
 
 # Vehicle Types
 VEHICLE_TYPE_COMBUSTION = "combustion"

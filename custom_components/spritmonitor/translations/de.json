@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Spritmonitor konfigurieren",
-        "description": "Gib die Anmeldeinformationen für dein Fahrzeug auf Spritmonitor ein.",
+        "description": "Gib die Anmeldeinformationen für dein Fahrzeug auf Spritmonitor ein. Den Bearer-Token erstellst du auf der Spritmonitor-Website unter [API Zugriffstokens]({token_url}).",
         "data": {
           "vehicle_id": "Fahrzeug-ID",
           "app_token": "Anwendungs-Token",
@@ -38,6 +38,9 @@
       "next_service_note": { "name": "Notiz zum nächsten Service" },
       "next_service_date": { "name": "Datum des nächsten Service" },
       "km_to_next_service": { "name": "Kilometer bis zum nächsten Service" },
+      "last_cost_entry_date": { "name": "Datum letzter Kosteneintrag" },
+      "last_cost_entry_odometer": { "name": "Kilometerstand letzter Kosteneintrag" },
+      "last_cost_entry_note": { "name": "Notiz letzter Kosteneintrag" },
       "fuel_capacity": { "name": "Tankvolumen" },
       "total_fuel": { "name": "Insgesamt verbrauchter Kraftstoff" },
       "avg_consumption": { "name": "Durchschnittlicher Verbrauch" },
@@ -54,13 +57,31 @@
       "last_charge_consumption": { "name": "Verbrauch des letzten Ladevorgangs" },
       "full_battery_range_estimate": { "name": "Geschätzte Reichweite (Volle Batterie)" },
       "consumption_trend": { "name": "Verbrauchstrend" },
+      "consumption_trend_fuel": { "name": "Verbrauchstrend (Kraftstoff)" },
+      "consumption_trend_electric": { "name": "Verbrauchstrend (Strom)" },
       "consumption_consistency": { "name": "Verbrauchskonstanz" },
+      "consumption_consistency_fuel": { "name": "Verbrauchskonstanz (Kraftstoff)" },
+      "consumption_consistency_electric": { "name": "Verbrauchskonstanz (Strom)" },
       "avg_refuel_quantity": { "name": "Ø-Menge pro Lade-/Tankvorgang" },
+      "avg_refuel_quantity_fuel": { "name": "Ø-Menge pro Tankvorgang" },
+      "avg_refuel_quantity_electric": { "name": "Ø-Menge pro Ladevorgang" },
       "avg_days_between_refuels": { "name": "Ø-Tage zwischen Lade-/Tankvorgängen" },
+      "avg_days_between_refuels_fuel": { "name": "Ø-Tage zwischen Tankvorgängen" },
+      "avg_days_between_refuels_electric": { "name": "Ø-Tage zwischen Ladevorgängen" },
       "price_variability": { "name": "Preisvariabilität" },
+      "price_variability_fuel": { "name": "Preisvariabilität (Kraftstoff)" },
+      "price_variability_electric": { "name": "Preisvariabilität (Strom)" },
       "eco_driving_index": { "name": "Öko-Fahrindex" },
+      "eco_driving_index_fuel": { "name": "Öko-Fahrindex (Kraftstoff)" },
+      "eco_driving_index_electric": { "name": "Öko-Fahrindex (Strom)" },
       "cost_per_distance": { "name": "Kosten pro Distanz" },
-      "monthly_energy_charged": { "name": "Monatlich Geladene Energie"}
+      "cost_per_distance_fuel": { "name": "Kosten pro Distanz (Kraftstoff)" },
+      "cost_per_distance_electric": { "name": "Kosten pro Distanz (Strom)" },
+      "cost_per_100_distance": { "name": "Kosten pro 100 km/mi" },
+      "cost_per_100_distance_fuel": { "name": "Kosten pro 100 km/mi (Kraftstoff)" },
+      "cost_per_100_distance_electric": { "name": "Kosten pro 100 km/mi (Strom)" },
+      "monthly_energy_charged": { "name": "Monatlich Geladene Energie"},
+      "efficiency_per_distance": { "name": "Durchschnittliche elektrische Effizienz" }
     }
   },
   "selector": {

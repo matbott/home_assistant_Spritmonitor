@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Configure Spritmonitor",
-        "description": "Enter the credentials for your vehicle on Spritmonitor.",
+        "description": "Enter the credentials for your vehicle on Spritmonitor. Create the Bearer Token on the Spritmonitor website under [API access tokens]({token_url}).",
         "data": {
           "vehicle_id": "Vehicle ID",
           "app_token": "Application Token",
@@ -14,7 +14,9 @@
           "currency": "Currency Symbol (e.g., $, €)"
         }
       }
-    }
+    },
+    "error": { "invalid_auth": "Authentication failed. Check the Application Token and Bearer Token, and that the Vehicle ID belongs to this account.", "cannot_connect": "Could not connect to Spritmonitor." },
+    "abort": { "already_configured": "This vehicle is already configured." }
   },
   "entity": {
     "sensor": {
@@ -36,6 +38,9 @@
       "next_service_note": { "name": "Next Service Note" },
       "next_service_date": { "name": "Next Service Date" },
       "km_to_next_service": { "name": "Kilometers to Next Service" },
+      "last_cost_entry_date": { "name": "Last Cost Entry Date" },
+      "last_cost_entry_odometer": { "name": "Last Cost Entry Odometer" },
+      "last_cost_entry_note": { "name": "Last Cost Entry Note" },
       "fuel_capacity": { "name": "Fuel Capacity" },
       "total_fuel": { "name": "Total Fuel Consumed" },
       "avg_consumption": { "name": "Average Consumption" },
@@ -58,6 +63,7 @@
       "price_variability": { "name": "Price Variability" },
       "eco_driving_index": { "name": "Eco Driving Index" },
       "cost_per_distance": { "name": "Cost per Distance" },
+      "cost_per_100_distance": { "name": "Cost per 100 km/mi" },
       "consumption_trend_fuel": { "name": "Consumption Trend (Fuel)" },
       "consumption_consistency_fuel": { "name": "Consumption Consistency (Fuel)" },
       "avg_refuel_quantity_fuel": { "name": "Average Refuel Quantity" },
@@ -65,6 +71,7 @@
       "price_variability_fuel": { "name": "Price Variability (Fuel)" },
       "eco_driving_index_fuel": { "name": "Eco Driving Index (Fuel)" },
       "cost_per_distance_fuel": { "name": "Cost per Distance (Fuel)" },
+      "cost_per_100_distance_fuel": { "name": "Cost per 100 km/mi (Fuel)" },
       "consumption_trend_electric": { "name": "Consumption Trend (Electric)" },
       "consumption_consistency_electric": { "name": "Consumption Consistency (Electric)" },
       "avg_refuel_quantity_electric": { "name": "Average Charge Quantity" },
@@ -72,6 +79,7 @@
       "price_variability_electric": { "name": "Price Variability (Electric)" },
       "eco_driving_index_electric": { "name": "Eco Driving Index (Electric)" },
       "cost_per_distance_electric": { "name": "Cost per Distance (Electric)" },
+      "cost_per_100_distance_electric": { "name": "Cost per 100 km/mi (Electric)" },
       "monthly_energy_charged": { "name": "Monthly Energy Charged" },
       "efficiency_per_distance": { "name": "Average Electric Efficiency" }
     }

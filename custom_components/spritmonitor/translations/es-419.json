@@ -14,7 +14,9 @@
           "currency": "Símbolo de Moneda (ej. $, €)"
         }
       }
-    }
+    },
+    "error": { "invalid_auth": "Error de autenticación. Revisa los tokens y que el ID del vehículo pertenezca a esta cuenta.", "cannot_connect": "No se pudo conectar con Spritmonitor." },
+    "abort": { "already_configured": "Este vehículo ya está configurado." }
   },
   "entity": {
     "sensor": {
@@ -36,6 +38,9 @@
       "next_service_note": { "name": "Nota Próximo Servicio" },
       "next_service_date": { "name": "Fecha Próximo Servicio" },
       "km_to_next_service": { "name": "Kms para Próximo Servicio" },
+      "last_cost_entry_date": { "name": "Fecha Último Gasto" },
+      "last_cost_entry_odometer": { "name": "Odómetro Último Gasto" },
+      "last_cost_entry_note": { "name": "Nota Último Gasto" },
       "fuel_capacity": { "name": "Capacidad de Combustible" },
       "total_fuel": { "name": "Combustible Total Consumido" },
       "avg_consumption": { "name": "Consumo Promedio" },
@@ -58,6 +63,7 @@
       "price_variability": { "name": "Variabilidad de Precio" },
       "eco_driving_index": { "name": "Índice de Conducción Ecológica" },
       "cost_per_distance": { "name": "Costo por Distancia" },
+      "cost_per_100_distance": { "name": "Costo por 100 km/mi" },
       "consumption_trend_fuel": { "name": "Tendencia de Consumo (Combustible)" },
       "consumption_consistency_fuel": { "name": "Consistencia de Consumo (Combustible)" },
       "avg_refuel_quantity_fuel": { "name": "Cantidad Promedio de Repostaje" },
@@ -65,6 +71,7 @@
       "price_variability_fuel": { "name": "Variabilidad de Precio (Combustible)" },
       "eco_driving_index_fuel": { "name": "Índice Eco (Combustible)" },
       "cost_per_distance_fuel": { "name": "Costo por Distancia (Combustible)" },
+      "cost_per_100_distance_fuel": { "name": "Costo por 100 km/mi (Combustible)" },
       "consumption_trend_electric": { "name": "Tendencia de Consumo (Eléctrico)" },
       "consumption_consistency_electric": { "name": "Consistencia de Consumo (Eléctrico)" },
       "avg_refuel_quantity_electric": { "name": "Cantidad Promedio de Carga" },
@@ -72,7 +79,9 @@
       "price_variability_electric": { "name": "Variabilidad de Precio (Eléctrico)" },
       "eco_driving_index_electric": { "name": "Índice Eco (Eléctrico)" },
       "cost_per_distance_electric": { "name": "Costo por Distancia (Eléctrico)" },
-      "monthly_energy_charged": { "name": "Energía Cargada Mensual"}
+      "cost_per_100_distance_electric": { "name": "Costo por 100 km/mi (Eléctrico)" },
+      "monthly_energy_charged": { "name": "Energía Cargada Mensual"},
+      "efficiency_per_distance": { "name": "Eficiencia Eléctrica Promedio" }
     }
   },
   "selector": {
